@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.io.Reader;
 
 import java.util.*;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.List;
+// import java.util.HashMap;
+// import java.util.ArrayList;
+// import java.util.Map;
+// import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import site.ycsb.*;
@@ -80,6 +80,7 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
   private HashMap<Double, Integer> tripDistanceValues;
   private ArrayList<Double> tripDistanceValuesArr;
   protected NumberGenerator lBoundChooser;
+  protected NumberGenerator insertValChooser;
   protected NumberGenerator rangeChooser;
   protected DiscreteGenerator latestQueryChooser;
   private PreviousQueries prevQueries;
@@ -88,6 +89,9 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
   protected boolean orderedinserts;
   protected boolean queryTypeRange;
   private NumberGenerator pointQueryValueGenerator;
+  private NumberGenerator crcChooser;
+  private Map<Double, Integer> freqMap;
+  private Map<Double, Integer> crcMap;
 
   /**
    * Create a AttributeGenerator with the given file.
@@ -98,6 +102,8 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
     this.insertstart = insertstart;
     this.insertcount = insertcount;
     this.tripDistanceValues = new HashMap<Double, Integer>();
+    this.freqMap = new HashMap<Double, Integer>();
+    this.crcMap = new HashMap<Double, Integer>();
     this.tripDistanceValuesArr = new ArrayList();
     pointQueryValueGenerator = new UniformLongGenerator(insertstart, insertstart + insertcount - 1);
     int cachesize =
@@ -168,6 +174,9 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
           Double.parseDouble(p.getProperty(CACHED_QUERY_PROPORTION_PROPERTY, CACHED_QUERY_PROPORTION_PROPERTY_DEFAULT));
     latestQueryChooser.addValue(cachedqueryfraction, "cached");
     latestQueryChooser.addValue(1.0 - cachedqueryfraction, "new");
+
+    insertValChooser = new ScrambledZipfianGenerator(0, 4000);
+    crcChooser = new UniformLongGenerator(0, 10);
 
     reloadFile();
     try {
@@ -256,17 +265,40 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
    */
   @Override
   public synchronized List<Map<String, String>> nextValue() {
-    currentDatasetEntry = next();
+    double val = insertValChooser.nextValue().intValue() / 100.0;
+    int crc = crcChooser.nextValue().intValue();
+
+    Integer j = freqMap.get(val);
+    freqMap.put(val, (j == null) ? 1 : j + 1);
+
+    j = crcMap.get(val);
+    crcMap.put(val, (j == null) ? crc : j + crc);
+
+    currentDatasetEntry = next(val, crc);
     return currentDatasetEntry;
   }
 
 
-  private synchronized List<Map<String, String>> next() {
+  public void printFrequencies() {
+    System.out.printf("Printing trip_distance values and crcs");
+    for (Map.Entry<Double, Integer> v : freqMap.entrySet()) {
+      System.out.printf("Element %f occurs: %d times\n", v.getKey(), v.getValue());
+    }
+    for (Map.Entry<Double, Integer> v : crcMap.entrySet()) {
+      System.out.printf("Element %f: crc %d\n", v.getKey(), v.getValue());
+    }
+  }
+
+  public Set<Map.Entry<Double, Integer>> getAttributeValues() {
+    return crcMap.entrySet();
+  }
+
+  private synchronized List<Map<String, String>> next(double val, int crc) {
     try {
       line = reader.readLine();
       String [] data = line.split(",");
       DatasetEntry userMetadata = new DatasetEntry();
-      double tripDistanceVal = userMetadata.set(data);
+      double tripDistanceVal = userMetadata.set(data, val, crc);
       return userMetadata.get();
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -398,9 +430,9 @@ class DatasetEntry {
     entry = e;
   }
 
-  public double set(String[] data) {
+  public double set(String[] data, double val, int crc) {
     Map<String, String> attribute0 = new HashMap<String, String>();
-    attribute0.put("vendorid", data[0]);
+    attribute0.put("i-vendorid", String.valueOf(crc));
     entry.add(0, attribute0);
     Map<String, String> attribute1 = new HashMap<String, String>();
     attribute1.put("tpep_pickup_datetime", data[1]);
@@ -412,7 +444,7 @@ class DatasetEntry {
     attribute3.put("i-passenger_count", data[3]);
     entry.add(3, attribute3);
     Map<String, String> attribute4 = new HashMap<String, String>();
-    attribute4.put("f-trip_distance", data[4]);
+    attribute4.put("f-trip_distance", Double.toString(val));
     entry.add(4, attribute4);
     Map<String, String> attribute5 = new HashMap<String, String>();
     attribute5.put("ratecodeid", data[5]);

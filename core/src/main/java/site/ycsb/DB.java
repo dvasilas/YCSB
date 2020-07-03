@@ -150,5 +150,8 @@ public abstract class DB {
   public abstract Status subscribeQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
                               java.lang.Object []ubound, CountDownLatch finishLatch);
 
+  public abstract Status validationQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+                              java.lang.Object []ubound);
+
   public abstract void endWarmup();
 }

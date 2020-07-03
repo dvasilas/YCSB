@@ -189,6 +189,11 @@ public class GoodBadUglyDB extends DB {
     return Status.NOT_IMPLEMENTED;
   }
 
+  public Status validationQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+                              java.lang.Object []ubound) {
+    return Status.NOT_IMPLEMENTED;
+  }
+
   @Override
   public void endWarmup() {
   }

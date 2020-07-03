@@ -398,6 +398,41 @@ public class CoreWorkload extends Workload {
     return fieldlengthgenerator;
   }
 
+  @Override
+  public void cleanup() throws WorkloadException {
+    System.out.println("workload cleanup");
+  }
+
+  @Override
+  public void buildCRCs(DB db) {
+    System.out.println("buildCRCs");
+    attributeGenerator.printFrequencies();
+    Set<Map.Entry<Double, Integer>> entries = attributeGenerator.getAttributeValues();
+    for (Map.Entry<Double, Integer> v : entries) {
+      long keynum = transactioninsertkeysequence.nextValue();
+      try {
+        String dbkey = buildKeyName(keynum);
+        System.out.println(dbkey);
+        HashMap<String, ByteIterator> values = buildValues(dbkey);
+        // List<Map<String, String>> attributeList = attributeGenerator.nextValue();
+        Map<String, String> attributes = new HashMap<String, String>();
+        // for (int i=0; i<attributeList.size() && i < attributecount; i++) {
+        //   attributes.putAll(attributeList.get(i));
+        // }
+        attributes.put("f-trip_distance", Double.toString(v.getKey()));
+        attributes.put("i-vendorid", Integer.toString(v.getValue()*-1));
+        System.out.printf("%f: %d\n", v.getKey(), v.getValue());
+        for (Map.Entry<String, String> vv : attributes.entrySet()) {
+          System.out.printf("%s: %s\n", vv.getKey(), vv.getValue());
+        }
+        // attributeGenerator.tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
+        db.insertWithAttributes(table, dbkey, values, attributes, null);
+      } finally {
+        transactioninsertkeysequence.acknowledge(keynum);
+      }
+    }
+  }
+
   /**
    * Initialize the scenario.
    * Called once, in the main client thread, before any operations are started.

@@ -350,4 +350,10 @@ public class DBWrapper extends DB {
     Status res = db.subscribeQuery(attributeName, attributeType, lbound, ubound, finishLatch);
     return res;
   }
+
+  public Status validationQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+                              java.lang.Object []ubound) {
+    Status res = db.validationQuery(attributeName, attributeType, lbound, ubound);
+    return res;
+  }
 }

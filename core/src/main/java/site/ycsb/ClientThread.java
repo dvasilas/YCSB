@@ -154,7 +154,16 @@ public class ClientThread implements Runnable {
 
           throttleNanos(startTimeNanos);
         }
+        workload.buildCRCs(db);
       }
+    } catch (Exception e) {
+      e.printStackTrace();
+      e.printStackTrace(System.out);
+      System.exit(0);
+    }
+
+    try {
+      workload.cleanup();
     } catch (Exception e) {
       e.printStackTrace();
       e.printStackTrace(System.out);

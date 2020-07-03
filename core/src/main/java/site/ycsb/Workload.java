@@ -87,6 +87,9 @@ public abstract class Workload {
   public void cleanup() throws WorkloadException {
   }
 
+  public void buildCRCs(DB db) {
+  }
+
   /**
    * Do one insert operation. Because it will be called concurrently from multiple client threads, this
    * function must be thread safe. However, avoid synchronized, or the threads will block waiting for each
