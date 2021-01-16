@@ -308,6 +308,8 @@ public final class Client {
     long maxExecutionTime = Integer.parseInt(props.getProperty(MAX_EXECUTION_TIME, "0"));
     long warmupTime = Integer.parseInt(props.getProperty(WARMPUP_TIME, "0"));
 
+    System.out.println("maxExecutionTime" + props.getProperty(MAX_EXECUTION_TIME, "0"));
+
     //get number of threads, target and db
     int threadcount = Integer.parseInt(props.getProperty(THREAD_COUNT_PROPERTY, "1"));
     String dbname = props.getProperty(DB_PROPERTY, "site.ycsb.BasicDB");
@@ -334,16 +336,16 @@ public final class Client {
     System.err.println("Starting test.");
     final CountDownLatch completeLatch = new CountDownLatch(threadcount);
 
-    if (Boolean.valueOf(props.getProperty("useBarrier", "false"))) {
-      try {
-        System.out.println("sleep");
-        TimeUnit.SECONDS.sleep(Integer.parseInt(props.getProperty("sleep", "0")));
-        System.out.println("sleep");
-      } catch (Exception e) {
-        e.printStackTrace();
-        e.printStackTrace(System.out);
-      }
-    }
+    // if (Boolean.valueOf(props.getProperty("useBarrier", "false"))) {
+    //   try {
+    //     System.out.println("sleep");
+    //     TimeUnit.SECONDS.sleep(Integer.parseInt(props.getProperty("sleep", "0")));
+    //     System.out.println("sleep");
+    //   } catch (Exception e) {
+    //     e.printStackTrace();
+    //     e.printStackTrace(System.out);
+    //   }
+    // }
 
     final List<ClientThread> clients = initDb(dbname, props, threadcount, targetperthreadperms,
         workload, tracer, completeLatch);
@@ -382,10 +384,10 @@ public final class Client {
       }
 
       FreshnessMeasurementThread freshnessThread = new FreshnessMeasurementThread(clients.get(0).getDB(), props);
-      if (Boolean.valueOf(props.getProperty(DO_TRANSACTIONS_PROPERTY, String.valueOf(true)))
-          && Boolean.valueOf(props.getProperty("measure.freshness", String.valueOf(false)))) {
-        freshnessThread.start();
-      }
+      // if (Boolean.valueOf(props.getProperty(DO_TRANSACTIONS_PROPERTY, String.valueOf(true)))
+      //     && Boolean.valueOf(props.getProperty("measure.freshness", String.valueOf(false)))) {
+      //   freshnessThread.start();
+      // }
 
       if (maxExecutionTime > 0) {
         terminator = new TerminatorThread(maxExecutionTime, threads.keySet(), workload, freshnessThread);

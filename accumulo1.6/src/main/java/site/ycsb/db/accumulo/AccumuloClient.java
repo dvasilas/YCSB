@@ -368,4 +368,8 @@ public class AccumuloClient extends DB {
 
     bw.addMutation(deleter);
   }
+
+  @Override
+  public void endWarmup() {
+  }
 }

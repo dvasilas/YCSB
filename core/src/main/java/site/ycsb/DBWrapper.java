@@ -24,7 +24,7 @@ import org.apache.htrace.core.Tracer;
 
 import java.util.*;
 
-import java.util.concurrent.CountDownLatch;
+// import java.util.concurrent.CountDownLatch;
 
 /**
  * Wrapper around a "real" DB that measures latencies and counts return codes.
@@ -329,12 +329,11 @@ public class DBWrapper extends DB {
     }
   }
 
-  public Status query(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound, long []en) {
+  public Status query(String queryStr, long []en) {
     try (final TraceScope span = tracer.newScope(scopeStringQuery)) {
       long ist = measurements.getIntendedtartTimeNs();
       long st = System.nanoTime();
-      Status res = db.query(attributeName, attributeType, lbound, ubound, en);
+      Status res = db.query(queryStr, en);
       if (!warmup) {
         if (res == Status.OK) {
           measure("QUERY", res, ist, st, en[0]);
@@ -345,15 +344,15 @@ public class DBWrapper extends DB {
     }
   }
 
-  public Status subscribeQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound, CountDownLatch finishLatch) {
-    Status res = db.subscribeQuery(attributeName, attributeType, lbound, ubound, finishLatch);
-    return res;
-  }
+  // public Status subscribeQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+  //                             java.lang.Object []ubound, CountDownLatch finishLatch) {
+  //   Status res = db.subscribeQuery(attributeName, attributeType, lbound, ubound, finishLatch);
+  //   return res;
+  // }
 
-  public Status validationQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound) {
-    Status res = db.validationQuery(attributeName, attributeType, lbound, ubound);
-    return res;
-  }
+  // public Status validationQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+  //                             java.lang.Object []ubound) {
+  //   Status res = db.validationQuery(attributeName, attributeType, lbound, ubound);
+  //   return res;
+  // }
 }

@@ -555,16 +555,15 @@ public class TestTimeSeriesWorkload {
       return Status.OK;
     }
     @Override
-    public Status query(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                        java.lang.Object []ubound, long []en) {
+    public Status query(String queryStr, long []en) {
       return Status.OK;
     }
 
-    @Override
-    public Status subscribeQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound, CountDownLatch finishLatch) {
-    return Status.NOT_IMPLEMENTED;
-  }
+  //   @Override
+  //   public Status subscribeQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+  //                             java.lang.Object []ubound, CountDownLatch finishLatch) {
+  //   return Status.NOT_IMPLEMENTED;
+  // }
 
     @Override
     public Status insertWithAttributes(String table, String key, Map<String, ByteIterator> values,
@@ -577,6 +576,11 @@ public class TestTimeSeriesWorkload {
                                             Map<String, String> attributes) {
       return Status.OK;
     }
+
+    // public Status validationQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+    //                           java.lang.Object []ubound) {
+    //   return Status.NOT_IMPLEMENTED;
+    // }
 
     @Override
     public Status readWithAttributes(String table, String key, Set<String> fields,

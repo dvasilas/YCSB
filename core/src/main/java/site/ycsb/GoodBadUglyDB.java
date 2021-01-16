@@ -179,8 +179,7 @@ public class GoodBadUglyDB extends DB {
     return Status.OK;
   }
 
-  public Status query(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound, long []en) {
+  public Status query(String queryStr, long []en) {
     return Status.NOT_IMPLEMENTED;
   }
   

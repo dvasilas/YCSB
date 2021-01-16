@@ -51,7 +51,7 @@ public class FreshnessMeasurementThread extends Thread {
     double ub = 1000.0;
     lbound[0] = String.valueOf(lb);
     ubound[0] = String.valueOf(ub);
-    db.subscribeQuery(attributeName, attributeType, lbound, ubound, finishLatch);
+    // db.subscribeQuery(attributeName, attributeType, lbound, ubound, finishLatch);
   }
 
   public void requestStop() {

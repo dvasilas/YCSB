@@ -92,7 +92,7 @@ public class ClientThread implements Runnable {
       e.printStackTrace();
       e.printStackTrace(System.out);
     }
-    workload.preload(props, db);
+    // workload.preload(props, db);
   }
 
   public DB getDB() {
@@ -154,7 +154,7 @@ public class ClientThread implements Runnable {
 
           throttleNanos(startTimeNanos);
         }
-        workload.buildCRCs(db);
+        // workload.buildCRCs(db);
       }
     } catch (Exception e) {
       e.printStackTrace();

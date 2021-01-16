@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
-import java.util.concurrent.CountDownLatch;
+// import java.util.concurrent.CountDownLatch;
 
 /**
  * Basic DB that just prints out the requested operations, instead of doing them against a database.
@@ -300,20 +300,19 @@ public class BasicDB extends DB {
     return Status.OK;
   }
 
-  public Status query(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound, long []en) {
+  public Status query(String queryStr, long []en) {
     return Status.NOT_IMPLEMENTED;
   }
 
-  public Status subscribeQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound, CountDownLatch finishLatch) {
-    return Status.NOT_IMPLEMENTED;
-  }
+  // public Status subscribeQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+  //                             java.lang.Object []ubound, CountDownLatch finishLatch) {
+  //   return Status.NOT_IMPLEMENTED;
+  // }
 
-  public Status validationQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound) {
-    return Status.NOT_IMPLEMENTED;
-  }
+  // public Status validationQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+  //                             java.lang.Object []ubound) {
+  //   return Status.NOT_IMPLEMENTED;
+  // }
 
   @Override
   public void cleanup() {

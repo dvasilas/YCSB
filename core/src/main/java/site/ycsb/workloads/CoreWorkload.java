@@ -577,9 +577,9 @@ public class CoreWorkload extends Workload {
 
   @Override
   public void preload(Properties p, DB db) {
-    if (attributeGenerator != null) {
-      attributeGenerator.preload(p, db);
-    }
+    // if (attributeGenerator != null) {
+    //   attributeGenerator.preload(p, db);
+    // }
   }
 
   protected String buildKeyName(long keynum) {
@@ -883,8 +883,9 @@ public class CoreWorkload extends Workload {
     java.lang.Object[] lbound = new java.lang.Object[1];
     java.lang.Object[] ubound = new java.lang.Object[1];
     long[] en = new long[2];
-    attributeGenerator.nextQuery(attributeName, attributeType, lbound, ubound);
-    db.query(attributeName, attributeType, lbound, ubound, en);
+    // attributeGenerator.nextQuery(attributeName, attributeType, lbound, ubound);
+
+    db.query("select * from ycsbbuck where x = 42", en);
   }
 
   public void doTransactionUpdate(DB db) {

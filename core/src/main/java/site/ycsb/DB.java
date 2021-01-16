@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
+// import java.util.concurrent.CountDownLatch;
 
 /**
  * A layer for accessing a database to be benchmarked. Each thread in the client
@@ -144,14 +144,13 @@ public abstract class DB {
    */
   public abstract Status delete(String table, String key);
 
-  public abstract Status query(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound, long []en);
+  public abstract Status query(String queryStr, long []en);
 
-  public abstract Status subscribeQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound, CountDownLatch finishLatch);
+  // public abstract Status subscribeQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+  //                             java.lang.Object []ubound, CountDownLatch finishLatch);
 
-  public abstract Status validationQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound);
+  // public abstract Status validationQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+  //                             java.lang.Object []ubound);
 
   public abstract void endWarmup();
 }

@@ -99,91 +99,91 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
    */
   public AttributeGenerator(String filename, long insertstart, long insertcount, Properties p) {
     this.filename = filename;
-    this.insertstart = insertstart;
-    this.insertcount = insertcount;
-    this.tripDistanceValues = new HashMap<Double, Integer>();
-    this.freqMap = new HashMap<Double, Integer>();
-    this.crcMap = new HashMap<Double, Integer>();
-    this.tripDistanceValuesArr = new ArrayList();
-    pointQueryValueGenerator = new UniformLongGenerator(insertstart, insertstart + insertcount - 1);
-    int cachesize =
-        Integer.parseInt(p.getProperty(CACHE_SIZE_PROPERTY, CACHE_SIZE_PROPERTY_DEFAULT));
-    this.prevQueries = new PreviousQueries(cachesize);
-    keysequence = new CounterGenerator(insertstart);
-    if (p.getProperty(INSERT_ORDER_PROPERTY, INSERT_ORDER_PROPERTY_DEFAULT).compareTo("hashed") == 0) {
-      orderedinserts = false;
-    } else {
-      orderedinserts = true;
-    }
-    this.table = p.getProperty(TABLENAME_PROPERTY, TABLENAME_PROPERTY_DEFAULT);
-    zeropadding =
-        Integer.parseInt(p.getProperty(ZERO_PADDING_PROPERTY, ZERO_PADDING_PROPERTY_DEFAULT));
-    if (p.getProperty(QUERY_TYPE_PROPERTY, QUERY_TYPE_PROPERTY_DEFAULT).compareTo("range") == 0) {
-      queryTypeRange = true;
-    } else {
-      queryTypeRange = false;
-    }
-    String querystartvaluedistrib =
-        p.getProperty(QUERY_START_VALUE_DISTRIBUTION_PROPERTY, QUERY_START_VALUE_DISTRIBUTION_PROPERTY_DEFAULT);
-    double minquerystartvalue =
-        Double.parseDouble(p.getProperty(MIN_QUERY_START_VALUE_PROPERTY, MIN_QUERY_START_VALUE_PROPERTY_DEFAULT));
-    double maxquerystartvalue =
-        Double.parseDouble(p.getProperty(MAX_QUERY_START_VALUE_PROPERTY,
-                                                  MAX_QUERY_START_VALUE_PROPERTY_DEFAULT));
-    String queryrangeistrib =
-        p.getProperty(QUERY_RANGE_DISTRIBUTION_PROPERTY, QUERY_RANGE_DISTRIBUTION_PROPERTY_DEFAULT);
-    double minqueryrange =
-        Double.parseDouble(p.getProperty(MIN_QUERY_RANGE_PROPERTY, MIN_QUERY_RANGE_PROPERTY_DEFAULT));
-    double maxqueryrange =
-        Double.parseDouble(p.getProperty(MAX_QUERY_RANGE_PROPERTY, MAX_QUERY_RANGE_PROPERTY_DEFAULT));
+    // this.insertstart = insertstart;
+    // this.insertcount = insertcount;
+    // this.tripDistanceValues = new HashMap<Double, Integer>();
+    // this.freqMap = new HashMap<Double, Integer>();
+    // this.crcMap = new HashMap<Double, Integer>();
+    // this.tripDistanceValuesArr = new ArrayList();
+    // pointQueryValueGenerator = new UniformLongGenerator(insertstart, insertstart + insertcount - 1);
+    // int cachesize =
+    //     Integer.parseInt(p.getProperty(CACHE_SIZE_PROPERTY, CACHE_SIZE_PROPERTY_DEFAULT));
+    // this.prevQueries = new PreviousQueries(cachesize);
+    // keysequence = new CounterGenerator(insertstart);
+    // if (p.getProperty(INSERT_ORDER_PROPERTY, INSERT_ORDER_PROPERTY_DEFAULT).compareTo("hashed") == 0) {
+    //   orderedinserts = false;
+    // } else {
+    //   orderedinserts = true;
+    // }
+    // this.table = p.getProperty(TABLENAME_PROPERTY, TABLENAME_PROPERTY_DEFAULT);
+    // zeropadding =
+    //     Integer.parseInt(p.getProperty(ZERO_PADDING_PROPERTY, ZERO_PADDING_PROPERTY_DEFAULT));
+    // if (p.getProperty(QUERY_TYPE_PROPERTY, QUERY_TYPE_PROPERTY_DEFAULT).compareTo("range") == 0) {
+    //   queryTypeRange = true;
+    // } else {
+    //   queryTypeRange = false;
+    // }
+    // String querystartvaluedistrib =
+    //     p.getProperty(QUERY_START_VALUE_DISTRIBUTION_PROPERTY, QUERY_START_VALUE_DISTRIBUTION_PROPERTY_DEFAULT);
+    // double minquerystartvalue =
+    //     Double.parseDouble(p.getProperty(MIN_QUERY_START_VALUE_PROPERTY, MIN_QUERY_START_VALUE_PROPERTY_DEFAULT));
+    // double maxquerystartvalue =
+    //     Double.parseDouble(p.getProperty(MAX_QUERY_START_VALUE_PROPERTY,
+    //                                               MAX_QUERY_START_VALUE_PROPERTY_DEFAULT));
+    // String queryrangeistrib =
+    //     p.getProperty(QUERY_RANGE_DISTRIBUTION_PROPERTY, QUERY_RANGE_DISTRIBUTION_PROPERTY_DEFAULT);
+    // double minqueryrange =
+    //     Double.parseDouble(p.getProperty(MIN_QUERY_RANGE_PROPERTY, MIN_QUERY_RANGE_PROPERTY_DEFAULT));
+    // double maxqueryrange =
+    //     Double.parseDouble(p.getProperty(MAX_QUERY_RANGE_PROPERTY, MAX_QUERY_RANGE_PROPERTY_DEFAULT));
 
-    if (querystartvaluedistrib.compareTo("uniform") == 0) {
-      lBoundChooser = new UniformLongGenerator((long) minquerystartvalue*5, (long) maxquerystartvalue*5);
-    } else if (querystartvaluedistrib.compareTo("zipfian") == 0) {
-      lBoundChooser = new ZipfianGenerator((long) minquerystartvalue*5, (long) maxquerystartvalue*5);
-    } else if (querystartvaluedistrib.compareTo("latest") == 0) {
-      throw new UnsupportedOperationException("Not yet implemented \"" + querystartvaluedistrib + "\"");
-    } else if (querystartvaluedistrib.equals("hotspot")) {
-      double hotsetfraction =
-          Double.parseDouble(p.getProperty(HOTSPOT_DATA_FRACTION, HOTSPOT_DATA_FRACTION_DEFAULT));
-      double hotopnfraction =
-          Double.parseDouble(p.getProperty(HOTSPOT_OPN_FRACTION, HOTSPOT_OPN_FRACTION_DEFAULT));
-      lBoundChooser = new HotspotIntegerGenerator((long) minquerystartvalue*5, (long) maxquerystartvalue*5,
-          hotsetfraction, hotopnfraction);
-    } else {
-      throw new UnsupportedOperationException("Unknown request distribution \"" + querystartvaluedistrib + "\"");
-    }
-    if (queryrangeistrib.compareTo("uniform") == 0) {
-      rangeChooser = new UniformLongGenerator((long) minqueryrange*5, (long) maxqueryrange*5);
-    } else if (queryrangeistrib.compareTo("zipfian") == 0) {
-      rangeChooser = new ZipfianGenerator((long) minquerystartvalue*5, (long) maxquerystartvalue*5);
-    } else if (queryrangeistrib.compareTo("latest") == 0) {
-      throw new UnsupportedOperationException("Not yet implemented \"" + querystartvaluedistrib + "\"");
-    } else if (queryrangeistrib.equals("hotspot")) {
-      double hotsetfraction =
-          Double.parseDouble(p.getProperty(HOTSPOT_DATA_FRACTION, HOTSPOT_DATA_FRACTION_DEFAULT));
-      double hotopnfraction =
-          Double.parseDouble(p.getProperty(HOTSPOT_OPN_FRACTION, HOTSPOT_OPN_FRACTION_DEFAULT));
-      rangeChooser = new HotspotIntegerGenerator((long) minquerystartvalue*5, (long) maxquerystartvalue*5,
-          hotsetfraction, hotopnfraction);
-    } else {
-      throw new UnsupportedOperationException("Unknown request distribution \"" + queryrangeistrib + "\"");
-    }
-    latestQueryChooser = new DiscreteGenerator();
-    double cachedqueryfraction =
-          Double.parseDouble(p.getProperty(CACHED_QUERY_PROPORTION_PROPERTY, CACHED_QUERY_PROPORTION_PROPERTY_DEFAULT));
-    latestQueryChooser.addValue(cachedqueryfraction, "cached");
-    latestQueryChooser.addValue(1.0 - cachedqueryfraction, "new");
+    // if (querystartvaluedistrib.compareTo("uniform") == 0) {
+    //   lBoundChooser = new UniformLongGenerator((long) minquerystartvalue*5, (long) maxquerystartvalue*5);
+    // } else if (querystartvaluedistrib.compareTo("zipfian") == 0) {
+    //   lBoundChooser = new ZipfianGenerator((long) minquerystartvalue*5, (long) maxquerystartvalue*5);
+    // } else if (querystartvaluedistrib.compareTo("latest") == 0) {
+    //   throw new UnsupportedOperationException("Not yet implemented \"" + querystartvaluedistrib + "\"");
+    // } else if (querystartvaluedistrib.equals("hotspot")) {
+    //   double hotsetfraction =
+    //       Double.parseDouble(p.getProperty(HOTSPOT_DATA_FRACTION, HOTSPOT_DATA_FRACTION_DEFAULT));
+    //   double hotopnfraction =
+    //       Double.parseDouble(p.getProperty(HOTSPOT_OPN_FRACTION, HOTSPOT_OPN_FRACTION_DEFAULT));
+    //   lBoundChooser = new HotspotIntegerGenerator((long) minquerystartvalue*5, (long) maxquerystartvalue*5,
+    //       hotsetfraction, hotopnfraction);
+    // } else {
+    //   throw new UnsupportedOperationException("Unknown request distribution \"" + querystartvaluedistrib + "\"");
+    // }
+    // if (queryrangeistrib.compareTo("uniform") == 0) {
+    //   rangeChooser = new UniformLongGenerator((long) minqueryrange*5, (long) maxqueryrange*5);
+    // } else if (queryrangeistrib.compareTo("zipfian") == 0) {
+    //   rangeChooser = new ZipfianGenerator((long) minquerystartvalue*5, (long) maxquerystartvalue*5);
+    // } else if (queryrangeistrib.compareTo("latest") == 0) {
+    //   throw new UnsupportedOperationException("Not yet implemented \"" + querystartvaluedistrib + "\"");
+    // } else if (queryrangeistrib.equals("hotspot")) {
+    //   double hotsetfraction =
+    //       Double.parseDouble(p.getProperty(HOTSPOT_DATA_FRACTION, HOTSPOT_DATA_FRACTION_DEFAULT));
+    //   double hotopnfraction =
+    //       Double.parseDouble(p.getProperty(HOTSPOT_OPN_FRACTION, HOTSPOT_OPN_FRACTION_DEFAULT));
+    //   rangeChooser = new HotspotIntegerGenerator((long) minquerystartvalue*5, (long) maxquerystartvalue*5,
+    //       hotsetfraction, hotopnfraction);
+    // } else {
+    //   throw new UnsupportedOperationException("Unknown request distribution \"" + queryrangeistrib + "\"");
+    // }
+    // latestQueryChooser = new DiscreteGenerator();
+    // double cachedqueryfraction =
+    //Double.parseDouble(p.getProperty(CACHED_QUERY_PROPORTION_PROPERTY, CACHED_QUERY_PROPORTION_PROPERTY_DEFAULT));
+    // latestQueryChooser.addValue(cachedqueryfraction, "cached");
+    // latestQueryChooser.addValue(1.0 - cachedqueryfraction, "new");
 
-    insertValChooser = new ScrambledZipfianGenerator(0, 4000);
-    crcChooser = new UniformLongGenerator(0, 10);
+    // insertValChooser = new ScrambledZipfianGenerator(0, 4000);
+    // crcChooser = new UniformLongGenerator(0, 10);
 
-    reloadFile();
-    try {
-      reader.readLine();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    // reloadFile();
+    // try {
+    //   reader.readLine();
+    // } catch (IOException e) {
+    //   throw new RuntimeException(e);
+    // }
   }
 
   public static AttributeGenerator getInstance(String filename, long insertstart, long insertcount, Properties p) {
@@ -193,36 +193,36 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
     return instance;
   }
 
-  public void preload(Properties p, DB db) {
-    boolean dotransactions = Boolean.valueOf(p.getProperty(Client.DO_TRANSACTIONS_PROPERTY, String.valueOf(true)));
-    if (dotransactions) {
-      if (p.getProperty("preload", "db").equals("file")) {
-        for (long i=0; i<insertstart; i++) {
-          try {
-            line = reader.readLine();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        }
-        for(long i=0; i<insertcount; i++) {
-          int keynum = keysequence.nextValue().intValue();
-          String dbkey = buildKeyName(keynum);
-          List<Map<String, String>> attributeList = nextValue();
-          tripDistanceInsert(Double.parseDouble(attributeList.get(4).get("f-trip_distance")));
-        }
-      } else if (p.getProperty("preload", "db").equals("db")) {
-        for(long i=0; i<insertcount; i++) {
-          HashSet<String> fields = null;
-          HashMap<String, ByteIterator> cells = new HashMap<String, ByteIterator>();
-          Map<String, String> attributes = new HashMap<String, String>();
-          int keynum = keysequence.nextValue().intValue();
-          String keyname = buildKeyName(keynum);
-          db.readWithAttributes(table, keyname, fields, cells, attributes);
-          tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
-        }
-      }
-    }
-  }
+  // public void preload(Properties p, DB db) {
+  //   boolean dotransactions = Boolean.valueOf(p.getProperty(Client.DO_TRANSACTIONS_PROPERTY, String.valueOf(true)));
+  //   if (dotransactions) {
+  //     if (p.getProperty("preload", "db").equals("file")) {
+  //       for (long i=0; i<insertstart; i++) {
+  //         try {
+  //           line = reader.readLine();
+  //         } catch (IOException e) {
+  //           throw new RuntimeException(e);
+  //         }
+  //       }
+  //       for(long i=0; i<insertcount; i++) {
+  //         int keynum = keysequence.nextValue().intValue();
+  //         String dbkey = buildKeyName(keynum);
+  //         List<Map<String, String>> attributeList = nextValue();
+  //         tripDistanceInsert(Double.parseDouble(attributeList.get(4).get("f-trip_distance")));
+  //       }
+  //     } else if (p.getProperty("preload", "db").equals("db")) {
+  //       for(long i=0; i<insertcount; i++) {
+  //         HashSet<String> fields = null;
+  //         HashMap<String, ByteIterator> cells = new HashMap<String, ByteIterator>();
+  //         Map<String, String> attributes = new HashMap<String, String>();
+  //         int keynum = keysequence.nextValue().intValue();
+  //         String keyname = buildKeyName(keynum);
+  //         db.readWithAttributes(table, keyname, fields, cells, attributes);
+  //         tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
+  //       }
+  //     }
+  //   }
+  // }
 
   public void nextQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
                               java.lang.Object []ubound) {

@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
+// import java.util.concurrent.CountDownLatch;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.*;
@@ -36,7 +36,7 @@ import site.ycsb.DB;
 import site.ycsb.DBException;
 import site.ycsb.Status;
 
-import site.ycsb.generator.Counter;
+// import site.ycsb.generator.Counter;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.*;
@@ -56,7 +56,7 @@ import com.amazonaws.services.s3.model.SSECustomerKey;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.S3ClientOptions;
 
-import io.grpc.stub.StreamObserver;
+// import io.grpc.stub.StreamObserver;
 import io.grpc.proteusclient.*;
 
 import site.ycsb.measurements.Measurements;
@@ -95,6 +95,7 @@ public class S3Client extends DB {
   private boolean dotransactions;
   private static String clientID;
   private Measurements measurements = Measurements.getMeasurements();
+
   /**
   * Cleanup any state for this storage.
   * Called once per S3 instance;
@@ -571,207 +572,217 @@ public class S3Client extends DB {
     return Status.OK;
   }
 
-  public Status query(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound, long []en) {
-    final Counter resultCount = new Counter();
-    try {
-      final CountDownLatch finishLatch = new CountDownLatch(1);
-      final StreamObserver<ResponseStreamRecord> requestObserver = new StreamObserver<ResponseStreamRecord>() {
-        @Override
-        public void onNext(ResponseStreamRecord record) {
-          resultCount.inc();
-        }
-        @Override
-        public void onError(Throwable t) {
-          System.err.println("plain Query failed " + t.getMessage());
-          t.printStackTrace();
-          finishLatch.countDown();
-        }
-        @Override
-        public void onCompleted() {
-          en[0] = System.nanoTime();
-          finishLatch.countDown();
-        }
-      };
-      QueryPredicate[] queryPredicates = new QueryPredicate[attributeName.length];
-      if (attributeName.length == attributeType.length && attributeName.length == lbound.length &&
-          attributeName.length == ubound.length) {
-        for (int i=0; i<attributeName.length; i++) {
-          AttributeValue lb;
-          AttributeValue ub;
-          Attribute.AttributeType attrType;
-          switch (attributeType[i]) {
-          case "S3TAGSTR":
-            attrType = Attribute.AttributeType.S3TAGSTR;
-            lb = new AttributeValue((java.lang.String) lbound[i]);
-            ub = new AttributeValue((java.lang.String) ubound[i]);
-            break;
-          case "S3TAGINT":
-            attrType = Attribute.AttributeType.S3TAGINT;
-            lb = new AttributeValue(Long.parseLong((java.lang.String) lbound[i]));
-            ub = new AttributeValue(Long.parseLong((java.lang.String) ubound[i]));
-            break;
-          case "S3TAGFLT":
-            attrType = Attribute.AttributeType.S3TAGFLT;
-            lb = new AttributeValue(Double.parseDouble((java.lang.String) lbound[i]));
-            ub = new AttributeValue(Double.parseDouble((java.lang.String) ubound[i]));
-            break;
-          default:
-            System.err.println("Error in query parameters");
-            return Status.ERROR;
-          }
-          queryPredicates[0] = new QueryPredicate(attributeName[i], attrType, lb, ub);
-        }
-        Map<String, String> queryMetadata = new HashMap<String, String>();
-        queryMetadata.put("maxResponseCount", queryResultCount);
-        proteusClient.query(queryPredicates, queryMetadata, finishLatch, requestObserver, false);
-        finishLatch.await();
-      } else {
-        System.err.println("Query parameters are not of equal length");
-        return Status.ERROR;
+  public Status query(String queryStr, long []en) {
+    // final Counter resultCount = new Counter();
+    // try {
+    //   final CountDownLatch finishLatch = new CountDownLatch(1);
+    //   final StreamObserver<ResponseStreamRecord> requestObserver = new StreamObserver<ResponseStreamRecord>() {
+    //     @Override
+    //     public void onNext(ResponseStreamRecord record) {
+    //       resultCount.inc();
+    //     }
+    //     @Override
+    //     public void onError(Throwable t) {
+    //       System.err.println("plain Query failed " + t.getMessage());
+    //       t.printStackTrace();
+    //       finishLatch.countDown();
+    //     }
+    //     @Override
+    //     public void onCompleted() {
+    QueryResp resp = proteusClient.query(queryStr);
+
+    for (QueryRespRecord respRecord: resp.getRespRecordList()) {
+      System.out.println(respRecord.getRecordId());
+
+      Map<String, String> attributes =  respRecord.getAttributesMap();
+      for (Map.Entry<String, String> entry : attributes.entrySet()) {
+        System.out.println(entry.getKey() + ": " + entry.getValue());
       }
-    } catch (InterruptedException e) {
-      System.err.println("Query failed "+ e.getMessage());
-      e.printStackTrace();
-      return Status.ERROR;
     }
+
+    en[0] = System.nanoTime();
+    //       finishLatch.countDown();
+    //     }
+    //   };
+    //   QueryPredicate[] queryPredicates = new QueryPredicate[attributeName.length];
+    //   if (attributeName.length == attributeType.length && attributeName.length == lbound.length &&
+    //       attributeName.length == ubound.length) {
+    //     for (int i=0; i<attributeName.length; i++) {
+    //       AttributeValue lb;
+    //       AttributeValue ub;
+    //       Attribute.AttributeType attrType;
+    //       switch (attributeType[i]) {
+    //       case "S3TAGSTR":
+    //         attrType = Attribute.AttributeType.S3TAGSTR;
+    //         lb = new AttributeValue((java.lang.String) lbound[i]);
+    //         ub = new AttributeValue((java.lang.String) ubound[i]);
+    //         break;
+    //       case "S3TAGINT":
+    //         attrType = Attribute.AttributeType.S3TAGINT;
+    //         lb = new AttributeValue(Long.parseLong((java.lang.String) lbound[i]));
+    //         ub = new AttributeValue(Long.parseLong((java.lang.String) ubound[i]));
+    //         break;
+    //       case "S3TAGFLT":
+    //         attrType = Attribute.AttributeType.S3TAGFLT;
+    //         lb = new AttributeValue(Double.parseDouble((java.lang.String) lbound[i]));
+    //         ub = new AttributeValue(Double.parseDouble((java.lang.String) ubound[i]));
+    //         break;
+    //       default:
+    //         System.err.println("Error in query parameters");
+    //         return Status.ERROR;
+    //       }
+    //       queryPredicates[0] = new QueryPredicate(attributeName[i], attrType, lb, ub);
+    //     }
+    //     Map<String, String> queryMetadata = new HashMap<String, String>();
+    //     queryMetadata.put("maxResponseCount", queryResultCount);
+    //     proteusClient.query(queryPredicates, queryMetadata, finishLatch, requestObserver, false);
+    //     finishLatch.await();
+    //   } else {
+    //     System.err.println("Query parameters are not of equal length");
+    //     return Status.ERROR;
+    //   }
+    // } catch (InterruptedException e) {
+    //   System.err.println("Query failed "+ e.getMessage());
+    //   e.printStackTrace();
+    //   return Status.ERROR;
+    // }
     return Status.OK;
   }
 
-  public Status validationQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound) {
-    final Counter resultCount = new Counter();
-    try {
-      final CountDownLatch finishLatch = new CountDownLatch(1);
-      final StreamObserver<ResponseStreamRecord> requestObserver = new StreamObserver<ResponseStreamRecord>() {
-        @Override
-        public void onNext(ResponseStreamRecord record) {
-          resultCount.inc();
-        }
-        @Override
-        public void onError(Throwable t) {
-          System.err.println("plain Query failed " + t.getMessage());
-          t.printStackTrace();
-          finishLatch.countDown();
-        }
-        @Override
-        public void onCompleted() {
-          finishLatch.countDown();
-        }
-      };
-      QueryPredicate[] queryPredicates = new QueryPredicate[attributeName.length];
-      if (attributeName.length == attributeType.length && attributeName.length == lbound.length &&
-          attributeName.length == ubound.length) {
-        for (int i=0; i<attributeName.length; i++) {
-          AttributeValue lb;
-          AttributeValue ub;
-          Attribute.AttributeType attrType;
-          switch (attributeType[i]) {
-          case "S3TAGSTR":
-            attrType = Attribute.AttributeType.S3TAGSTR;
-            lb = new AttributeValue((java.lang.String) lbound[i]);
-            ub = new AttributeValue((java.lang.String) ubound[i]);
-            break;
-          case "S3TAGINT":
-            attrType = Attribute.AttributeType.S3TAGINT;
-            lb = new AttributeValue(Long.parseLong((java.lang.String) lbound[i]));
-            ub = new AttributeValue(Long.parseLong((java.lang.String) ubound[i]));
-            break;
-          case "S3TAGFLT":
-            attrType = Attribute.AttributeType.S3TAGFLT;
-            lb = new AttributeValue(Double.parseDouble((java.lang.String) lbound[i]));
-            ub = new AttributeValue(Double.parseDouble((java.lang.String) ubound[i]));
-            break;
-          default:
-            System.err.println("Error in query parameters");
-            return Status.ERROR;
-          }
-          queryPredicates[0] = new QueryPredicate(attributeName[i], attrType, lb, ub);
-        }
-        Map<String, String> queryMetadata = new HashMap<String, String>();
-        queryMetadata.put("maxResponseCount", queryResultCount);
-        proteusClient.query(queryPredicates, null, finishLatch, requestObserver, false);
-        finishLatch.await();
-      } else {
-        System.err.println("Query parameters are not of equal length");
-        return Status.ERROR;
-      }
-    } catch (InterruptedException e) {
-      System.err.println("Query failed "+ e.getMessage());
-      e.printStackTrace();
-      return Status.ERROR;
-    }
-    return Status.OK;
-  }
+  // public Status validationQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+  //                             java.lang.Object []ubound) {
+    // final Counter resultCount = new Counter();
+    // try {
+    //   final CountDownLatch finishLatch = new CountDownLatch(1);
+    //   final StreamObserver<ResponseStreamRecord> requestObserver = new StreamObserver<ResponseStreamRecord>() {
+    //     @Override
+    //     public void onNext(ResponseStreamRecord record) {
+    //       resultCount.inc();
+    //     }
+    //     @Override
+    //     public void onError(Throwable t) {
+    //       System.err.println("plain Query failed " + t.getMessage());
+    //       t.printStackTrace();
+    //       finishLatch.countDown();
+    //     }
+    //     @Override
+    //     public void onCompleted() {
+    //       finishLatch.countDown();
+    //     }
+    //   };
+    //   QueryPredicate[] queryPredicates = new QueryPredicate[attributeName.length];
+    //   if (attributeName.length == attributeType.length && attributeName.length == lbound.length &&
+    //       attributeName.length == ubound.length) {
+    //     for (int i=0; i<attributeName.length; i++) {
+    //       AttributeValue lb;
+    //       AttributeValue ub;
+    //       Attribute.AttributeType attrType;
+    //       switch (attributeType[i]) {
+    //       case "S3TAGSTR":
+    //         attrType = Attribute.AttributeType.S3TAGSTR;
+    //         lb = new AttributeValue((java.lang.String) lbound[i]);
+    //         ub = new AttributeValue((java.lang.String) ubound[i]);
+    //         break;
+    //       case "S3TAGINT":
+    //         attrType = Attribute.AttributeType.S3TAGINT;
+    //         lb = new AttributeValue(Long.parseLong((java.lang.String) lbound[i]));
+    //         ub = new AttributeValue(Long.parseLong((java.lang.String) ubound[i]));
+    //         break;
+    //       case "S3TAGFLT":
+    //         attrType = Attribute.AttributeType.S3TAGFLT;
+    //         lb = new AttributeValue(Double.parseDouble((java.lang.String) lbound[i]));
+    //         ub = new AttributeValue(Double.parseDouble((java.lang.String) ubound[i]));
+    //         break;
+    //       default:
+    //         System.err.println("Error in query parameters");
+    //         return Status.ERROR;
+    //       }
+    //       queryPredicates[0] = new QueryPredicate(attributeName[i], attrType, lb, ub);
+    //     }
+    //     Map<String, String> queryMetadata = new HashMap<String, String>();
+    //     queryMetadata.put("maxResponseCount", queryResultCount);
+    //     proteusClient.query(queryPredicates, null, finishLatch, requestObserver, false);
+    //     finishLatch.await();
+    //   } else {
+    //     System.err.println("Query parameters are not of equal length");
+    //     return Status.ERROR;
+    //   }
+    // } catch (InterruptedException e) {
+    //   System.err.println("Query failed "+ e.getMessage());
+    //   e.printStackTrace();
+    //   return Status.ERROR;
+    // }
+  //   return Status.OK;
+  // }
 
-  public Status subscribeQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound, CountDownLatch finishLatch) {
-    try {
-      final Counter resultCount = new Counter();
-      final StreamObserver<ResponseStreamRecord> requestObserver = new StreamObserver<ResponseStreamRecord>() {
-        @Override
-        public void onNext(ResponseStreamRecord record) {
-          long en = System.nanoTime();
-          for (Attribute attr : record.getLogOp().getPayload().getDelta().getNew().getAttrsList()) {
-            if (attr.getAttrKey().startsWith("freshnesstimestamp")) {
-              if (attr.getAttrKey().split("_")[1].equals(clientID)) {
-                long st = Long.parseLong(attr.getValue().getStr());
-                measurements.measure("FRESHNESS_LATENCY", (int) ((en - st) / 1000));
-                measurements.reportStatus("FRESHNESS_LATENCY", Status.OK);
-              }
-              break;
-            }
-          }
-        }
-        @Override
-        public void onError(Throwable t) {
-        }
-        @Override
-        public void onCompleted() {
-          finishLatch.countDown();
-        }
-      };
-      QueryPredicate[] queryPredicates = new QueryPredicate[attributeName.length];
-      if (attributeName.length == attributeType.length && attributeName.length == lbound.length &&
-          attributeName.length == ubound.length) {
-        for (int i=0; i<attributeName.length; i++) {
-          AttributeValue lb;
-          AttributeValue ub;
-          Attribute.AttributeType attrType;
-          switch (attributeType[i]) {
-          case "S3TAGSTR":
-            attrType = Attribute.AttributeType.S3TAGSTR;
-            lb = new AttributeValue((java.lang.String) lbound[i]);
-            ub = new AttributeValue((java.lang.String) ubound[i]);
-            break;
-          case "S3TAGINT":
-            attrType = Attribute.AttributeType.S3TAGINT;
-            lb = new AttributeValue(Long.parseLong((java.lang.String) lbound[i]));
-            ub = new AttributeValue(Long.parseLong((java.lang.String) ubound[i]));
-            break;
-          case "S3TAGFLT":
-            attrType = Attribute.AttributeType.S3TAGFLT;
-            lb = new AttributeValue(Double.parseDouble((java.lang.String) lbound[i]));
-            ub = new AttributeValue(Double.parseDouble((java.lang.String) ubound[i]));
-            break;
-          default:
-            System.err.println("Error in query parameters");
-            return Status.ERROR;
-          }
-          queryPredicates[0] = new QueryPredicate(attributeName[i], attrType, lb, ub);
-        }
-        proteusClient.query(queryPredicates, null, finishLatch, requestObserver, true);
-      } else {
-        System.err.println("Query parameters are not of equal length");
-        return Status.ERROR;
-      }
-    } catch (Exception e) {
-      System.err.println("Query failed "+ e.getMessage());
-      e.printStackTrace();
-      return Status.ERROR;
-    }
-    return Status.OK;
-  }
+  // public Status subscribeQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
+  //                             java.lang.Object []ubound, CountDownLatch finishLatch) {
+    // try {
+    //   final Counter resultCount = new Counter();
+    //   final StreamObserver<ResponseStreamRecord> requestObserver = new StreamObserver<ResponseStreamRecord>() {
+    //     @Override
+    //     public void onNext(ResponseStreamRecord record) {
+    //       long en = System.nanoTime();
+    //       for (Attribute attr : record.getLogOp().getPayload().getDelta().getNew().getAttrsList()) {
+    //         if (attr.getAttrKey().startsWith("freshnesstimestamp")) {
+    //           if (attr.getAttrKey().split("_")[1].equals(clientID)) {
+    //             long st = Long.parseLong(attr.getValue().getStr());
+    //             measurements.measure("FRESHNESS_LATENCY", (int) ((en - st) / 1000));
+    //             measurements.reportStatus("FRESHNESS_LATENCY", Status.OK);
+    //           }
+    //           break;
+    //         }
+    //       }
+    //     }
+    //     @Override
+    //     public void onError(Throwable t) {
+    //     }
+    //     @Override
+    //     public void onCompleted() {
+    //       finishLatch.countDown();
+    //     }
+    //   };
+    //   QueryPredicate[] queryPredicates = new QueryPredicate[attributeName.length];
+    //   if (attributeName.length == attributeType.length && attributeName.length == lbound.length &&
+    //       attributeName.length == ubound.length) {
+    //     for (int i=0; i<attributeName.length; i++) {
+    //       AttributeValue lb;
+    //       AttributeValue ub;
+    //       Attribute.AttributeType attrType;
+    //       switch (attributeType[i]) {
+    //       case "S3TAGSTR":
+    //         attrType = Attribute.AttributeType.S3TAGSTR;
+    //         lb = new AttributeValue((java.lang.String) lbound[i]);
+    //         ub = new AttributeValue((java.lang.String) ubound[i]);
+    //         break;
+    //       case "S3TAGINT":
+    //         attrType = Attribute.AttributeType.S3TAGINT;
+    //         lb = new AttributeValue(Long.parseLong((java.lang.String) lbound[i]));
+    //         ub = new AttributeValue(Long.parseLong((java.lang.String) ubound[i]));
+    //         break;
+    //       case "S3TAGFLT":
+    //         attrType = Attribute.AttributeType.S3TAGFLT;
+    //         lb = new AttributeValue(Double.parseDouble((java.lang.String) lbound[i]));
+    //         ub = new AttributeValue(Double.parseDouble((java.lang.String) ubound[i]));
+    //         break;
+    //       default:
+    //         System.err.println("Error in query parameters");
+    //         return Status.ERROR;
+    //       }
+    //       queryPredicates[0] = new QueryPredicate(attributeName[i], attrType, lb, ub);
+    //     }
+    //     proteusClient.query(queryPredicates, null, finishLatch, requestObserver, true);
+    //   } else {
+    //     System.err.println("Query parameters are not of equal length");
+    //     return Status.ERROR;
+    //   }
+    // } catch (Exception e) {
+    //   System.err.println("Query failed "+ e.getMessage());
+    //   e.printStackTrace();
+    //   return Status.ERROR;
+    // }
+  //   return Status.OK;
+  // }
 
   @Override
   public void endWarmup() {
