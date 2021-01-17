@@ -18,9 +18,9 @@
 package site.ycsb.generator;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+// import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
+// import java.io.Reader;
 
 import java.util.*;
 // import java.util.HashMap;
@@ -35,7 +35,7 @@ import site.ycsb.Utils;
 /**
  * A generator, whose sequence is the lines of a file.
  */
-public class AttributeGenerator extends Generator<List<Map<String, String>>> {
+public class AttributeGenerator extends Generator<Map<String, String>> {
   public static final String QUERY_START_VALUE_DISTRIBUTION_PROPERTY = "querystartvaluedistribution";
   public static final String QUERY_START_VALUE_DISTRIBUTION_PROPERTY_DEFAULT = "uniform";
   public static final String MIN_QUERY_START_VALUE_PROPERTY = "minquerystartvalue";
@@ -69,19 +69,20 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
 
   protected String table;
   private static AttributeGenerator instance = null;
-  private final String filename;
+  // private final String filename;
   private String line;
   private int current;
   private long insertstart;
   private long insertcount;
   protected long attributecount;
-  private List<Map<String, String>> currentDatasetEntry;
+  private Map<String, String> currentDatasetEntry;
   private BufferedReader reader;
   private HashMap<Double, Integer> tripDistanceValues;
   private ArrayList<Double> tripDistanceValuesArr;
   protected NumberGenerator lBoundChooser;
   protected NumberGenerator insertValChooser;
   protected NumberGenerator rangeChooser;
+  protected NumberGenerator attributeValGenerator;
   protected DiscreteGenerator latestQueryChooser;
   private PreviousQueries prevQueries;
   protected NumberGenerator keysequence;
@@ -98,7 +99,8 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
    * @param filename The file to read lines from.
    */
   public AttributeGenerator(String filename, long insertstart, long insertcount, Properties p) {
-    this.filename = filename;
+    // this.filename = filename;
+    attributeValGenerator = new UniformLongGenerator(0, 20);
     // this.insertstart = insertstart;
     // this.insertcount = insertcount;
     // this.tripDistanceValues = new HashMap<Double, Integer>();
@@ -224,25 +226,27 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
   //   }
   // }
 
-  public void nextQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
-                              java.lang.Object []ubound) {
-    String query = latestQueryChooser.nextString();
-    if(query == null) {
-      throw new AssertionError("nextQuery null");
-    }
-    if (prevQueries.isEmpty()) {
-      query = "new";
-    }
-    switch (query) {
-    case "new":
-      newQuery(attributeName, attributeType, lbound, ubound);
-      break;
-    case "cached":
-      prevQueries.nextQuery(attributeName, attributeType, lbound, ubound);
-      break;
-    default:
-      throw new AssertionError("nextQuery neither 'new' nor 'cached'");
-    }
+  public String nextQuery() {
+    // String query = latestQueryChooser.nextString();
+    // if(query == null) {
+    //   throw new AssertionError("nextQuery null");
+    // }
+    // if (prevQueries.isEmpty()) {
+    //   query = "new";
+    // }
+    // switch (query) {
+    // case "new":
+    //   newQuery(attributeName, attributeType, lbound, ubound);
+    //   break;
+    // case "cached":
+    //   prevQueries.nextQuery(attributeName, attributeType, lbound, ubound);
+    //   break;
+    // default:
+    //   throw new AssertionError("nextQuery neither 'new' nor 'cached'");
+    // }
+    int val =  attributeValGenerator.nextValue().intValue();
+    String query = String.format("select * from ycsbbuck where attribute0 = %d", val);
+    return query;
   }
 
   private void newQuery(String []attributeName, String []attributeType,  java.lang.Object []lbound,
@@ -264,18 +268,23 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
    * Return the next string of the sequence, ie the next line of the file.
    */
   @Override
-  public synchronized List<Map<String, String>> nextValue() {
-    double val = insertValChooser.nextValue().intValue() / 100.0;
-    int crc = crcChooser.nextValue().intValue();
+  public synchronized Map<String, String> nextValue() {
+    // double val = insertValChooser.nextValue().intValue() / 100.0;
+    // int crc = crcChooser.nextValue().intValue();
 
-    Integer j = freqMap.get(val);
-    freqMap.put(val, (j == null) ? 1 : j + 1);
+    int val = attributeValGenerator.nextValue().intValue();
 
-    j = crcMap.get(val);
-    crcMap.put(val, (j == null) ? crc : j + crc);
+    HashMap<String, String> attributes = new HashMap<String, String>();
+    attributes.put("attribute0", String.valueOf(val));
+    // Integer j = freqMap.get(val);
+    // freqMap.put(val, (j == null) ? 1 : j + 1);
 
-    currentDatasetEntry = next(val, crc);
-    return currentDatasetEntry;
+    // j = crcMap.get(val);
+    // crcMap.put(val, (j == null) ? crc : j + crc);
+
+    // currentDatasetEntry = next(val, crc);
+    return attributes;
+
   }
 
 
@@ -309,7 +318,7 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
    * Return the previous read line.
    */
   @Override
-  public List<Map<String , String>> lastValue() {
+  public Map<String , String> lastValue() {
     return currentDatasetEntry;
   }
 
@@ -330,13 +339,13 @@ public class AttributeGenerator extends Generator<List<Map<String, String>>> {
   /**
    * Reopen the file to reuse values.
    */
-  public synchronized void reloadFile() {
-    try (Reader r = reader) {
-      reader = new BufferedReader(new FileReader(filename));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
+  // public synchronized void reloadFile() {
+  //   // try (Reader r = reader) {
+  //   //   reader = new BufferedReader(new FileReader(filename));
+  //   // } catch (IOException e) {
+  //   //   throw new RuntimeException(e);
+  //   // }
+  // }
 
   public synchronized void tripDistanceInsert(double value) {
     if (!tripDistanceValues.containsKey(value)) {

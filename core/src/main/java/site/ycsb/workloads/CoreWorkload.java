@@ -75,7 +75,7 @@ public class CoreWorkload extends Workload {
   /**
    * The default name of the database table to run queries against.
    */
-  public static final String TABLENAME_PROPERTY_DEFAULT = "usertable";
+  public static final String TABLENAME_PROPERTY_DEFAULT = "ycsbbuck";
 
   protected String table;
 
@@ -361,6 +361,8 @@ public class CoreWorkload extends Workload {
   protected long fieldcount;
   protected long recordcount;
   protected long attributecount;
+  protected long insertstart;
+  protected long insertcount;
   protected int zeropadding;
   protected int insertionRetryLimit;
   protected int insertionRetryInterval;
@@ -472,9 +474,9 @@ public class CoreWorkload extends Workload {
     String scanlengthdistrib =
         p.getProperty(SCAN_LENGTH_DISTRIBUTION_PROPERTY, SCAN_LENGTH_DISTRIBUTION_PROPERTY_DEFAULT);
 
-    long insertstart =
+    insertstart =
         Long.parseLong(p.getProperty(INSERT_START_PROPERTY, INSERT_START_PROPERTY_DEFAULT));
-    long insertcount=
+    insertcount =
         Integer.parseInt(p.getProperty(INSERT_COUNT_PROPERTY, String.valueOf(recordcount - insertstart)));
     // Confirm valid values for insertstart and insertcount in relation to recordcount
     if (recordcount < (insertstart + insertcount)) {
@@ -516,7 +518,7 @@ public class CoreWorkload extends Workload {
     keysequence = new CounterGenerator(insertstart);
     operationchooser = createOperationGenerator(p);
 
-    transactioninsertkeysequence = new AcknowledgedCounterGenerator(recordcount);
+    transactioninsertkeysequence = new AcknowledgedCounterGenerator(insertstart);
     if (requestdistrib.compareTo("uniform") == 0) {
       keychooser = new UniformLongGenerator(insertstart, insertstart + insertcount - 1);
     } else if (requestdistrib.compareTo("exponential") == 0) {
@@ -663,13 +665,13 @@ public class CoreWorkload extends Workload {
     String dbkey = buildKeyName(keynum);
     HashMap<String, ByteIterator> values = buildValues(dbkey);
 
-    Map<String, String> attributes = new HashMap<String, String>();
+    Map<String, String> attributes = attributeGenerator.nextValue();
     if (s3DB) {
-      List<Map<String, String>> attributeList = attributeGenerator.nextValue();
-      for (int i=0; i<attributeList.size() && i < attributecount; i++) {
-        attributes.putAll(attributeList.get(i));
-      }
-      attributeGenerator.tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
+      // Map<String, String> attributeList = attributeGenerator.nextValue();
+      // for (int i=0; i<attributeList.size() && i < attributecount; i++) {
+      //   attributes.putAll(attributeList.get(i));
+      // }
+      // attributeGenerator.tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
     }
     Status status;
     int numOfRetries = 0;
@@ -773,7 +775,7 @@ public class CoreWorkload extends Workload {
     } else {
       do {
         keynum = keychooser.nextValue().intValue();
-      } while (keynum > transactioninsertkeysequence.lastValue());
+      } while (keynum > insertcount);
     }
     return keynum;
   }
@@ -841,9 +843,9 @@ public class CoreWorkload extends Workload {
     long st = System.nanoTime();
     db.readWithAttributes(table, keyname, fields, cells, attributes);
 
-    List<Map<String, String>> attributeList = attributeGenerator.nextValue();
-    attributeGenerator.tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
-    db.updateWithAttributes(table, keyname, values, attributes);
+    // List<Map<String, String>> attributeList = attributeGenerator.nextValue();
+    // attributeGenerator.tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
+    // db.updateWithAttributes(table, keyname, values, attributes);
 
     long en = System.nanoTime();
 
@@ -878,14 +880,12 @@ public class CoreWorkload extends Workload {
   }
 
   public void doTransactionQuery(DB db) {
-    String[] attributeName = new String[1];
-    String[] attributeType = new String[1];
-    java.lang.Object[] lbound = new java.lang.Object[1];
-    java.lang.Object[] ubound = new java.lang.Object[1];
+    // String[] attributeName = new String[1];
+    // String[] attributeType = new String[1];
+    // java.lang.Object[] lbound = new java.lang.Object[1];
+    // java.lang.Object[] ubound = new java.lang.Object[1];
     long[] en = new long[2];
-    // attributeGenerator.nextQuery(attributeName, attributeType, lbound, ubound);
-
-    db.query("select * from ycsbbuck where x = 42", en);
+    db.query(attributeGenerator.nextQuery(), en);
   }
 
   public void doTransactionUpdate(DB db) {
@@ -903,15 +903,15 @@ public class CoreWorkload extends Workload {
       // update a random field
       values = buildSingleValue(keyname);
     }
-    Map<String, String> attributes = new HashMap<String, String>();
-    List<Map<String, String>> attributeList = attributeGenerator.nextValue();
-    for (int i=0; i<attributeList.size() && i < attributecount; i++) {
-      attributes.putAll(attributeList.get(i));
-    }
+    // Map<String, String> attributes = new HashMap<String, String>();
+    // List<Map<String, String>> attributeList = attributeGenerator.nextValue();
+    // for (int i=0; i<attributeList.size() && i < attributecount; i++) {
+    //   attributes.putAll(attributeList.get(i));
+    // }
     long ts = System.nanoTime();
-    attributes.put(String.format("freshnessTimestamp_%s", clientID) , String.valueOf(ts));
-    attributeGenerator.tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
-    db.updateWithAttributes(table, keyname, values, attributes);
+    // attributes.put(String.format("freshnessTimestamp_%s", clientID) , String.valueOf(ts));
+    // attributeGenerator.tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
+    db.updateWithAttributes(table, keyname, values, attributeGenerator.nextValue());
   }
 
   public void doTransactionInsert(DB db) {
@@ -923,13 +923,13 @@ public class CoreWorkload extends Workload {
 
       HashMap<String, ByteIterator> values = buildValues(dbkey);
 
-      List<Map<String, String>> attributeList = attributeGenerator.nextValue();
-      Map<String, String> attributes = new HashMap<String, String>();
-      for (int i=0; i<attributeList.size() && i < attributecount; i++) {
-        attributes.putAll(attributeList.get(i));
-      }
-      attributeGenerator.tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
-      db.insertWithAttributes(table, dbkey, values, attributes, null);
+      // List<Map<String, String>> attributeList = 
+      // Map<String, String> attributes = new HashMap<String, String>();
+      // for (int i=0; i<attributeList.size() && i < attributecount; i++) {
+      //   attributes.putAll(attributeList.get(i));
+      // }
+      // attributeGenerator.tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
+      db.insertWithAttributes(table, dbkey, values, attributeGenerator.nextValue(), null);
     } finally {
       transactioninsertkeysequence.acknowledge(keynum);
     }
