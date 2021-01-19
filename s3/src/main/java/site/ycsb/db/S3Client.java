@@ -591,14 +591,14 @@ public class S3Client extends DB {
     //     public void onCompleted() {
     QueryResp resp = proteusClient.query(queryStr);
 
-    for (QueryRespRecord respRecord: resp.getRespRecordList()) {
-      System.out.println(respRecord.getRecordId());
+    // for (QueryRespRecord respRecord: resp.getRespRecordList()) {
+    //   System.out.println(respRecord.getRecordId());
 
-      Map<String, String> attributes =  respRecord.getAttributesMap();
-      for (Map.Entry<String, String> entry : attributes.entrySet()) {
-        System.out.println(entry.getKey() + ": " + entry.getValue());
-      }
-    }
+    //   Map<String, String> attributes =  respRecord.getAttributesMap();
+    //   for (Map.Entry<String, String> entry : attributes.entrySet()) {
+    //     System.out.println(entry.getKey() + ": " + entry.getValue());
+    //   }
+    // }
 
     en[0] = System.nanoTime();
     //       finishLatch.countDown();

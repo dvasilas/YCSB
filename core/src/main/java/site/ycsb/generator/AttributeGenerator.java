@@ -117,7 +117,7 @@ public class AttributeGenerator extends Generator<Map<String, String>> {
     // } else {
     //   orderedinserts = true;
     // }
-    // this.table = p.getProperty(TABLENAME_PROPERTY, TABLENAME_PROPERTY_DEFAULT);
+    this.table = p.getProperty(TABLENAME_PROPERTY, TABLENAME_PROPERTY_DEFAULT);
     // zeropadding =
     //     Integer.parseInt(p.getProperty(ZERO_PADDING_PROPERTY, ZERO_PADDING_PROPERTY_DEFAULT));
     // if (p.getProperty(QUERY_TYPE_PROPERTY, QUERY_TYPE_PROPERTY_DEFAULT).compareTo("range") == 0) {
@@ -245,7 +245,7 @@ public class AttributeGenerator extends Generator<Map<String, String>> {
     //   throw new AssertionError("nextQuery neither 'new' nor 'cached'");
     // }
     int val =  attributeValGenerator.nextValue().intValue();
-    String query = String.format("select * from ycsbbuck where attribute0 = %d", val);
+    String query = String.format("select * from %s where attribute0 = %d", table, val);
     return query;
   }
 
