@@ -1,13 +1,13 @@
 FROM openjdk:8u212-jdk-stretch
 
-ENV TABLE ycsb-buck
+ENV TABLE ycsbbuck
 ENV S3HOST cloudserver-0
 ENV S3PORT 8000
 ENV S3ACCESSKEYID accessKey1
 ENV S3SECRETKEY verySecretKey1
-ENV PROTEUSHOST qpuindex
-ENV PROTEUSPORT 50250
-ENV TYPE load
+ENV PROTEUSHOST index
+ENV PROTEUSPORT 50350
+ENV TYPE run
 ENV WORKLOAD workloada
 ENV RECORDCOUNT 1000
 ENV INSERTSTART 0
@@ -15,15 +15,12 @@ ENV INSERTCOUNT 1000
 ENV THREADS 1
 ENV QUERYPROPORTION 1.0
 ENV UPDATEPROPORTION 0.0
-ENV CACHEDQUERYPROPORTION 0.0
+ENV INSERTPROPORTION 0.0
 ENV EXECUTIONTIME 60
 ENV WARMUPTIME 0
-ENV USEBARRIER false
-ENV SLEEP 0
-ENV PRELOAD db
+# ENV USEBARRIER false
+# ENV SLEEP 0
 ENV CLIENTID 0
-ENV QUERYRESULTCOUNT 1
-ENV MEASUREFRESHNESS true
 
 ENV OUTPUT_FILE_NAME out
 
@@ -49,7 +46,7 @@ RUN git clone https://github.com/vishnubob/wait-for-it.git
 # RUN mkdir ./YCSB/s3/src/main/resources \
     # && cp ./proteus/proteus_java_client/build/libs/proteusclient.jar ./YCSB/s3/src/main/resources/
 
-RUN curl https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2019-06.csv -o /yellow_tripdata_2019-06.csv
+# RUN curl https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2019-06.csv -o /yellow_tripdata_2019-06.csv
 
 RUN mkdir ${MEASUREMENT_RESULTS_DIR}
 

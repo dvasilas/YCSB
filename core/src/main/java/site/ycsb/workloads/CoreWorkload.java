@@ -240,9 +240,9 @@ public class CoreWorkload extends Workload {
 
   public static final String QUERY_PROPORTION_PROPERTY_DEFAULT = "0.95";
 
-  public static final String QUERY_RESULT_COUNT_PROPERTY = "queryresultcount";
+  // public static final String QUERY_RESULT_COUNT_PROPERTY = "queryresultcount";
 
-  public static final String QUERY_RESULT_COUNT_PROPERTY_DEFAULT = "1";
+  // public static final String QUERY_RESULT_COUNT_PROPERTY_DEFAULT = "1";
 
   /**
    * The name of the property for the the distribution of requests across the keyspace. Options are
@@ -462,8 +462,8 @@ public class CoreWorkload extends Workload {
 
     clientID = p.getProperty("client", "0");
 
-    String attributedataset = p.getProperty(
-        Client.ATTRIBUTE_DATASET_PROPERTY, Client.DEFAULT_ATTRIBUTE_DATASET);
+    // String attributedataset = p.getProperty(
+    //     Client.ATTRIBUTE_DATASET_PROPERTY, Client.DEFAULT_ATTRIBUTE_DATASET);
 
     String requestdistrib =
         p.getProperty(REQUEST_DISTRIBUTION_PROPERTY, REQUEST_DISTRIBUTION_PROPERTY_DEFAULT);
@@ -487,7 +487,7 @@ public class CoreWorkload extends Workload {
 
     if (p.getProperty(Client.DB_PROPERTY, "site.ycsb.BasicDB").equals("site.ycsb.db.S3Client")) {
       s3DB = true;
-      attributeGenerator = AttributeGenerator.getInstance(attributedataset, insertstart, insertcount, p);
+      attributeGenerator = AttributeGenerator.getInstance("", insertstart, insertcount, p);
     }
 
     zeropadding =

@@ -52,8 +52,8 @@ public class AttributeGenerator extends Generator<Map<String, String>> {
   public static final String HOTSPOT_DATA_FRACTION_DEFAULT = "0.2";
   public static final String HOTSPOT_OPN_FRACTION = "hotspotopnfraction";
   public static final String HOTSPOT_OPN_FRACTION_DEFAULT = "0.8";
-  public static final String CACHED_QUERY_PROPORTION_PROPERTY = "cachedqueryproportion";
-  public static final String CACHED_QUERY_PROPORTION_PROPERTY_DEFAULT = "0.2";
+  // public static final String CACHED_QUERY_PROPORTION_PROPERTY = "cachedqueryproportion";
+  // public static final String CACHED_QUERY_PROPORTION_PROPERTY_DEFAULT = "0.2";
   public static final String CACHE_SIZE_PROPERTY = "cachesize";
   public static final String CACHE_SIZE_PROPERTY_DEFAULT = "10";
   public static final String INSERT_START_PROPERTY = "insertstart";

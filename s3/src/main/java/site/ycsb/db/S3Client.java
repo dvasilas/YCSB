@@ -91,7 +91,7 @@ public class S3Client extends DB {
   private static SSECustomerKey ssecKey;
   private static final AtomicInteger INIT_COUNT = new AtomicInteger(0);
   private static ProteusClient proteusClient;
-  private static String queryResultCount;
+  // private static String queryResultCount;
   private boolean dotransactions;
   private static String clientID;
   private Measurements measurements = Measurements.getMeasurements();
@@ -238,7 +238,7 @@ public class S3Client extends DB {
                 propsCL.getProperty("proteus.port"));
             proteusHost = propsCL.getProperty("proteus.host");
             proteusClient = new ProteusClient(proteusHost, proteusPort);
-            queryResultCount = propsCL.getProperty("queryresultcount");
+            // queryResultCount = propsCL.getProperty("queryresultcount");
             System.out.println("Connection successfully initialized");
           } catch (Exception e){
             System.err.println("Could not connect to Proteus: "+ e.toString());

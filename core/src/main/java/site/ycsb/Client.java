@@ -156,9 +156,9 @@ public final class Client {
 
   public static final String DEFAULT_ATTRIBUTE_COUNT = "0";
 
-  public static final String ATTRIBUTE_DATASET_PROPERTY = "attributedataset";
+  // public static final String ATTRIBUTE_DATASET_PROPERTY = "attributedataset";
 
-  public static final String DEFAULT_ATTRIBUTE_DATASET = "";
+  // public static final String DEFAULT_ATTRIBUTE_DATASET = "";
   /**
    * An optional thread used to track progress and measure JVM stats.
    */

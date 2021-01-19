@@ -10,14 +10,9 @@ cd ${YCSB_DIR}
 ./bin/ycsb ${TYPE} s3 \
   -P ./workloads/${WORKLOAD} \
   -p table=${TABLE} \
-  -p useBarrier=${USEBARRIER} \
-  -p sleep=${SLEEP} \
-  -p measure.freshness=${MEASUREFRESHNESS} \
   -threads ${THREADS} \
-  -p queryresultcount=${QUERYRESULTCOUNT} \
   -p maxexecutiontime=${EXECUTIONTIME} \
   -p warmuptime=${WARMUPTIME} \
-  -p attributedataset=/yellow_tripdata_2019-06.csv \
   -p proteus.host=${PROTEUSHOST} \
   -p proteus.port=${PROTEUSPORT} \
   -p s3.endPoint=http://${S3HOST}:${S3PORT}  \
@@ -28,12 +23,11 @@ cd ${YCSB_DIR}
   -p insertcount=${INSERTCOUNT} \
   -p queryproportion=${QUERYPROPORTION} \
   -p updateproportion=${UPDATEPROPORTION} \
-  -p cachedqueryproportion=${CACHEDQUERYPROPORTION} \
-  -p preload=${PRELOAD} \
+  -p insertproportion=${INSERTPROPORTION} \
   -p client=${CLIENTID} \
   -s > ${MEASUREMENT_RESULTS_DIR}/${OUTPUT_FILE_NAME}.txt
 
 if [ "$TYPE" = "run" ]; then
   cp QUERY.hdr ${MEASUREMENT_RESULTS_DIR}/QUERY_${OUTPUT_FILE_NAME}.hdr
-  cp FRESHNESS_LATENCY.hdr ${MEASUREMENT_RESULTS_DIR}/FRESHNESS_LATENCY_${OUTPUT_FILE_NAME}.hdr
+  # cp FRESHNESS_LATENCY.hdr ${MEASUREMENT_RESULTS_DIR}/FRESHNESS_LATENCY_${OUTPUT_FILE_NAME}.hdr
 fi
