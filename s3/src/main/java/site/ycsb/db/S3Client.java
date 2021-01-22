@@ -159,6 +159,10 @@ public class S3Client extends DB {
       String proteusHost;
       int proteusPort;
       String table = propsCL.getProperty(TABLENAME_PROPERTY, TABLENAME_PROPERTY_DEFAULT);
+
+      int connpollsize = Integer.parseInt(
+          propsCL.getProperty("connpollsize"), 10);
+
       int recordcount = Integer.parseInt(
           propsCL.getProperty("recordcount"));
       int operationcount = Integer.parseInt(
@@ -237,7 +241,7 @@ public class S3Client extends DB {
             proteusPort = Integer.parseInt(
                 propsCL.getProperty("proteus.port"));
             proteusHost = propsCL.getProperty("proteus.host");
-            proteusClient = new ProteusClient(proteusHost, proteusPort);
+            proteusClient = new ProteusClient(10, connpollsize, proteusHost, proteusPort);
             // queryResultCount = propsCL.getProperty("queryresultcount");
             System.out.println("Connection successfully initialized");
           } catch (Exception e){
@@ -589,18 +593,22 @@ public class S3Client extends DB {
     //     }
     //     @Override
     //     public void onCompleted() {
-    QueryResp resp = proteusClient.query(queryStr);
+    try {
+      QueryResp resp = proteusClient.query(queryStr);
+      en[0] = System.nanoTime();
+      // for (QueryRespRecord respRecord: resp.getRespRecordList()) {
+      //   System.out.println(respRecord.getRecordId());
 
-    // for (QueryRespRecord respRecord: resp.getRespRecordList()) {
-    //   System.out.println(respRecord.getRecordId());
-
-    //   Map<String, String> attributes =  respRecord.getAttributesMap();
-    //   for (Map.Entry<String, String> entry : attributes.entrySet()) {
-    //     System.out.println(entry.getKey() + ": " + entry.getValue());
-    //   }
-    // }
-
-    en[0] = System.nanoTime();
+      //   Map<String, String> attributes =  respRecord.getAttributesMap();
+      //   for (Map.Entry<String, String> entry : attributes.entrySet()) {
+      //     System.out.println(entry.getKey() + ": " + entry.getValue());
+      //   }
+      // }
+    } catch (InterruptedException e) {
+      System.err.println("Query failed "+ e.getMessage());
+      e.printStackTrace();
+      return Status.ERROR;
+    }
     //       finishLatch.countDown();
     //     }
     //   };
