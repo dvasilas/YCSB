@@ -83,6 +83,7 @@ public class AttributeGenerator extends Generator<Map<String, String>> {
   protected NumberGenerator insertValChooser;
   protected NumberGenerator rangeChooser;
   protected NumberGenerator attributeValGenerator;
+  protected NumberGenerator attributeNumGenerator;
   protected DiscreteGenerator latestQueryChooser;
   private PreviousQueries prevQueries;
   protected NumberGenerator keysequence;
@@ -100,7 +101,10 @@ public class AttributeGenerator extends Generator<Map<String, String>> {
    */
   public AttributeGenerator(String filename, long insertstart, long insertcount, Properties p) {
     // this.filename = filename;
-    attributeValGenerator = new UniformLongGenerator(0, 20);
+    int attributeCardinality = Integer.parseInt(p.getProperty("attributecardinality"));
+    attributeValGenerator = new UniformLongGenerator(0, attributeCardinality);
+
+    attributeNumGenerator = new UniformLongGenerator(0, 5);
     // this.insertstart = insertstart;
     // this.insertcount = insertcount;
     // this.tripDistanceValues = new HashMap<Double, Integer>();
@@ -276,6 +280,12 @@ public class AttributeGenerator extends Generator<Map<String, String>> {
 
     HashMap<String, String> attributes = new HashMap<String, String>();
     attributes.put("attribute0", String.valueOf(val));
+
+    int attributeN = attributeNumGenerator.nextValue().intValue();
+    for (int i = 0; i < attributeN; i++) {
+      val = attributeValGenerator.nextValue().intValue();
+      attributes.put(String.format("attribute%d", i), String.valueOf(val));
+    }
     // Integer j = freqMap.get(val);
     // freqMap.put(val, (j == null) ? 1 : j + 1);
 

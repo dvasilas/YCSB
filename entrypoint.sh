@@ -12,6 +12,8 @@ cd ${YCSB_DIR}
   -p table=${TABLE} \
   -threads ${THREADS} \
   -p maxexecutiontime=${EXECUTIONTIME} \
+  -p attributecardinality=${CARDINALITY} \
+  -p connpoolsize=${POOLSIZE} \
   -p warmuptime=${WARMUPTIME} \
   -p proteus.host=${PROTEUSHOST} \
   -p proteus.port=${PROTEUSPORT} \

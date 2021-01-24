@@ -160,8 +160,8 @@ public class S3Client extends DB {
       int proteusPort;
       String table = propsCL.getProperty(TABLENAME_PROPERTY, TABLENAME_PROPERTY_DEFAULT);
 
-      int connpollsize = Integer.parseInt(
-          propsCL.getProperty("connpollsize"), 10);
+      int connpoolsize = Integer.parseInt(
+          propsCL.getProperty("connpoolsize"));
 
       int recordcount = Integer.parseInt(
           propsCL.getProperty("recordcount"));
@@ -241,7 +241,7 @@ public class S3Client extends DB {
             proteusPort = Integer.parseInt(
                 propsCL.getProperty("proteus.port"));
             proteusHost = propsCL.getProperty("proteus.host");
-            proteusClient = new ProteusClient(10, connpollsize, proteusHost, proteusPort);
+            proteusClient = new ProteusClient(10, connpoolsize, proteusHost, proteusPort);
             // queryResultCount = propsCL.getProperty("queryresultcount");
             System.out.println("Connection successfully initialized");
           } catch (Exception e){
