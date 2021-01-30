@@ -233,11 +233,12 @@ public class DBWrapper extends DB {
    * @return The result of the operation.
    */
   public Status update(String table, String key,
-                       Map<String, ByteIterator> values) {
+                       Map<String, ByteIterator> values,
+                       Map<String, Integer> valuesInt) {
     try (final TraceScope span = tracer.newScope(scopeStringUpdate)) {
       long ist = measurements.getIntendedtartTimeNs();
       long st = System.nanoTime();
-      Status res = db.update(table, key, values);
+      Status res = db.update(table, key, values, valuesInt);
       long en = System.nanoTime();
       if (!warmup) {
         measure("UPDATE", res, ist, st, en);
@@ -274,11 +275,12 @@ public class DBWrapper extends DB {
    * @return The result of the operation.
    */
   public Status insert(String table, String key,
-                       Map<String, ByteIterator> values) {
+                       Map<String, ByteIterator> values,
+                       Map<String, Integer> valuesInt) {
     try (final TraceScope span = tracer.newScope(scopeStringInsert)) {
       long ist = measurements.getIntendedtartTimeNs();
       long st = System.nanoTime();
-      Status res = db.insert(table, key, values);
+      Status res = db.insert(table, key, values, valuesInt);
       long en = System.nanoTime();
       if (!warmup) {
         measure("INSERT", res, ist, st, en);

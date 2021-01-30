@@ -213,14 +213,16 @@ public abstract class TimeseriesDB extends DB {
                                  AggregationOperation aggreg, int timeValue, TimeUnit timeUnit);
 
   @Override
-  public Status update(String table, String key, Map<String, ByteIterator> values) {
+  public Status update(String table, String key, Map<String, ByteIterator> values,
+                      Map<String, Integer> valuesInt) {
     return Status.NOT_IMPLEMENTED;
     // not supportable for general TSDBs
     // can be explicitly overwritten in inheriting classes
   }
 
   @Override
-  public final Status insert(String table, String key, Map<String, ByteIterator> values) {
+  public final Status insert(String table, String key, Map<String, ByteIterator> values,
+                          Map<String, Integer> valuesInt) {
     NumericByteIterator tsContainer = (NumericByteIterator) values.remove(timestampKey);
     NumericByteIterator valueContainer = (NumericByteIterator) values.remove(valueKey);
     if (valueContainer.isFloatingPoint()) {

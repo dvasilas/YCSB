@@ -536,14 +536,16 @@ public class TestTimeSeriesWorkload {
 
     @Override
     public Status update(String table, String key,
-        Map<String, ByteIterator> values) {
+        Map<String, ByteIterator> values,
+        Map<String, Integer> valuesInt) {
       // TODO Auto-generated method stub
       return Status.OK;
     }
 
     @Override
     public Status insert(String table, String key,
-        Map<String, ByteIterator> values) {
+        Map<String, ByteIterator> values,
+        Map<String, Integer> valuesInt) {
       keys.add(key);
       this.values.add(values);
       return Status.OK;

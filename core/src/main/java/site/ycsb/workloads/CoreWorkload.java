@@ -348,7 +348,7 @@ public class CoreWorkload extends Workload {
   /**
    * Default value of the field name prefix.
    */
-  public static final String FIELD_NAME_PREFIX_DEFAULT = "field";
+  public static final String FIELD_NAME_PREFIX_DEFAULT = "attribute";
 
   protected NumberGenerator keysequence;
   protected DiscreteGenerator operationchooser;
@@ -369,6 +369,8 @@ public class CoreWorkload extends Workload {
   protected boolean s3DB = false;
   private Measurements measurements = Measurements.getMeasurements();
   private static String clientID;
+
+  protected NumberGenerator attributeValGenerator;
 
   protected static NumberGenerator getFieldLengthGenerator(Properties p) throws WorkloadException {
     NumberGenerator fieldlengthgenerator;
@@ -462,6 +464,9 @@ public class CoreWorkload extends Workload {
 
     clientID = p.getProperty("client", "0");
 
+    int attributeCardinality = Integer.parseInt(p.getProperty("attributecardinality"));
+    attributeValGenerator = new UniformLongGenerator(0, attributeCardinality);
+
     // String attributedataset = p.getProperty(
     //     Client.ATTRIBUTE_DATASET_PROPERTY, Client.DEFAULT_ATTRIBUTE_DATASET);
 
@@ -487,8 +492,8 @@ public class CoreWorkload extends Workload {
 
     if (p.getProperty(Client.DB_PROPERTY, "site.ycsb.BasicDB").equals("site.ycsb.db.S3Client")) {
       s3DB = true;
-      attributeGenerator = AttributeGenerator.getInstance("", insertstart, insertcount, p);
     }
+    attributeGenerator = AttributeGenerator.getInstance("", insertstart, insertcount, p);
 
     zeropadding =
         Integer.parseInt(p.getProperty(ZERO_PADDING_PROPERTY, ZERO_PADDING_PROPERTY_DEFAULT));
@@ -635,6 +640,21 @@ public class CoreWorkload extends Workload {
     return values;
   }
 
+  private HashMap<String, Integer> buildIntValues(String key) {
+    HashMap<String, Integer> values = new HashMap<>();
+    for (String fieldkey : fieldnames) {
+      values.put(fieldkey, attributeValGenerator.nextValue().intValue());
+    }
+    return values;
+  }
+
+  private HashMap<String, Integer> buildSingleIntValue(String key) {
+    HashMap<String, Integer> value = new HashMap<>();
+    String fieldkey = fieldnames.get(0);
+    value.put(fieldkey, attributeValGenerator.nextValue().intValue());
+    return value;
+  }
+
   /**
    * Build a deterministic value given the key information.
    */
@@ -676,7 +696,10 @@ public class CoreWorkload extends Workload {
     Status status;
     int numOfRetries = 0;
     do {
-      status = db.insertWithAttributes(table, dbkey, values, attributes, null);
+      Map<String, Integer> valuesInt = buildIntValues(dbkey);
+      status= db.insert(table, dbkey, values, valuesInt);
+
+      // status = db.insertWithAttributes(table, dbkey, values, attributes, null);
       if (null != status && status.isOk()) {
         break;
       }
@@ -903,15 +926,10 @@ public class CoreWorkload extends Workload {
       // update a random field
       values = buildSingleValue(keyname);
     }
-    // Map<String, String> attributes = new HashMap<String, String>();
-    // List<Map<String, String>> attributeList = attributeGenerator.nextValue();
-    // for (int i=0; i<attributeList.size() && i < attributecount; i++) {
-    //   attributes.putAll(attributeList.get(i));
-    // }
-    long ts = System.nanoTime();
-    // attributes.put(String.format("freshnessTimestamp_%s", clientID) , String.valueOf(ts));
-    // attributeGenerator.tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
-    db.updateWithAttributes(table, keyname, values, attributeGenerator.nextValue());
+
+    Map<String, Integer> valuesInt = buildSingleIntValue(keyname);
+
+    db.update(table, keyname, values, valuesInt);
   }
 
   public void doTransactionInsert(DB db) {
@@ -923,13 +941,9 @@ public class CoreWorkload extends Workload {
 
       HashMap<String, ByteIterator> values = buildValues(dbkey);
 
-      // List<Map<String, String>> attributeList = 
-      // Map<String, String> attributes = new HashMap<String, String>();
-      // for (int i=0; i<attributeList.size() && i < attributecount; i++) {
-      //   attributes.putAll(attributeList.get(i));
-      // }
-      // attributeGenerator.tripDistanceInsert(Double.parseDouble(attributes.get("f-trip_distance")));
-      db.insertWithAttributes(table, dbkey, values, attributeGenerator.nextValue(), null);
+      Map<String, Integer> valuesInt = buildIntValues(dbkey);
+
+      db.insert(table, dbkey, values, valuesInt);
     } finally {
       transactioninsertkeysequence.acknowledge(keynum);
     }

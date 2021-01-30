@@ -118,7 +118,8 @@ public class BasicTSDB extends BasicDB {
   }
   
   @Override
-  public Status update(String table, String key, Map<String, ByteIterator> values) {
+  public Status update(String table, String key, Map<String, ByteIterator> values,
+                      Map<String, Integer> valuesInt) {
     delay();
 
     boolean isFloat = false;
@@ -171,7 +172,8 @@ public class BasicTSDB extends BasicDB {
   }
 
   @Override
-  public Status insert(String table, String key, Map<String, ByteIterator> values) {
+  public Status insert(String table, String key, Map<String, ByteIterator> values,
+                    Map<String, Integer> valuesInt) {
     delay();
     
     boolean isFloat = false;

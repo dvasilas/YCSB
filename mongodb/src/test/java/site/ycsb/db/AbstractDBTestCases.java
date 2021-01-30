@@ -95,7 +95,8 @@ public abstract class AbstractDBTestCases {
     HashMap<String, ByteIterator> inserted =
         new HashMap<String, ByteIterator>();
     inserted.put("a", new ByteArrayByteIterator(new byte[] { 1, 2, 3, 4 }));
-    Status result = client.insert(table, id, inserted);
+    Map<String, Integer> valuesInt = new HashMap<String, Integer>();
+    Status result = client.insert(table, id, inserted, valuesInt);
     assertThat("Insert did not return success (0).", result, is(Status.OK));
 
     HashMap<String, ByteIterator> read = new HashMap<String, ByteIterator>();
@@ -144,7 +145,8 @@ public abstract class AbstractDBTestCases {
     HashMap<String, ByteIterator> inserted =
         new HashMap<String, ByteIterator>();
     inserted.put("a", new ByteArrayByteIterator(new byte[] { 1, 2, 3, 4 }));
-    Status result = client.insert(table, id, inserted);
+    Map<String, Integer> valuesInt = new HashMap<String, Integer>();
+    Status result = client.insert(table, id, inserted, valuesInt);
     assertThat("Insert did not return success (0).", result, is(Status.OK));
 
     HashMap<String, ByteIterator> read = new HashMap<String, ByteIterator>();
@@ -169,7 +171,7 @@ public abstract class AbstractDBTestCases {
 
     HashMap<String, ByteIterator> updated = new HashMap<String, ByteIterator>();
     updated.put("a", new ByteArrayByteIterator(new byte[] { 5, 6, 7, 8 }));
-    result = client.update(table, id, updated);
+    result = client.update(table, id, updated, valuesInt);
     assertThat("Update did not return success (0).", result, is(Status.OK));
 
     read.clear();
@@ -207,7 +209,8 @@ public abstract class AbstractDBTestCases {
     HashMap<String, ByteIterator> inserted =
         new HashMap<String, ByteIterator>();
     inserted.put("a", new ByteArrayByteIterator(new byte[] { 1, 2, 3, 4 }));
-    Status result = client.insert(table, id, inserted);
+    Map<String, Integer> valuesInt = new HashMap<String, Integer>();
+    Status result = client.insert(table, id, inserted, valuesInt);
     assertThat("Insert did not return success (0).", result, is(Status.OK));
 
     HashMap<String, ByteIterator> read = new HashMap<String, ByteIterator>();
@@ -232,7 +235,7 @@ public abstract class AbstractDBTestCases {
 
     HashMap<String, ByteIterator> updated = new HashMap<String, ByteIterator>();
     updated.put("a", new ByteArrayByteIterator(new byte[] { 5, 6, 7, 8 }));
-    result = client.update(table, id, updated);
+    result = client.update(table, id, updated, valuesInt);
     assertThat("Update did not return success (0).", result, is(Status.OK));
 
     read.clear();
@@ -271,7 +274,8 @@ public abstract class AbstractDBTestCases {
       inserted.put("a", new ByteArrayByteIterator(new byte[] {
           (byte) (i & 0xFF), (byte) (i >> 8 & 0xFF), (byte) (i >> 16 & 0xFF),
           (byte) (i >> 24 & 0xFF) }));
-      Status result = client.insert(table, padded(i), inserted);
+      Map<String, Integer> valuesInt = new HashMap<String, Integer>();
+      Status result = client.insert(table, padded(i), inserted, valuesInt);
       assertThat("Insert did not return success (0).", result, is(Status.OK));
     }
 

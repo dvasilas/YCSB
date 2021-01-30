@@ -135,7 +135,8 @@ public class GoodBadUglyDB extends DB {
    * @param values A HashMap of field/value pairs to update in the record
    * @return Zero on success, a non-zero error code on error
    */
-  public Status update(String table, String key, Map<String, ByteIterator> values) {
+  public Status update(String table, String key, Map<String, ByteIterator> values,
+                      Map<String, Integer> valuesInt) {
     delay();
 
     return Status.OK;
@@ -156,7 +157,8 @@ public class GoodBadUglyDB extends DB {
    * @param values A HashMap of field/value pairs to insert in the record
    * @return Zero on success, a non-zero error code on error
    */
-  public Status insert(String table, String key, Map<String, ByteIterator> values) {
+  public Status insert(String table, String key, Map<String, ByteIterator> values,
+                    Map<String, Integer> valuesInt) {
     delay();
     return Status.OK;
   }

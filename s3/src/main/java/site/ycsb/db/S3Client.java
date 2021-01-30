@@ -278,7 +278,8 @@ public class S3Client extends DB {
   */
   @Override
   public Status insert(String bucket, String key,
-                       Map<String, ByteIterator> values) {
+                       Map<String, ByteIterator> values,
+                       Map<String, Integer> valuesInt) {
     Map<String, String> attributes = new HashMap<>();
     return writeToStorage(bucket, key, values, attributes, true, sse, ssecKey);
   }
@@ -332,7 +333,8 @@ public class S3Client extends DB {
   */
   @Override
   public Status update(String bucket, String key,
-                       Map<String, ByteIterator> values) {
+                       Map<String, ByteIterator> values,
+                       Map<String, Integer> valuesInt) {
     Map<String, String> attributes = new HashMap<String, String>();
     return writeToStorage(bucket, key, values, attributes, false, sse, ssecKey);
   }
@@ -594,7 +596,7 @@ public class S3Client extends DB {
     //     @Override
     //     public void onCompleted() {
     try {
-      QueryResp resp = proteusClient.query(queryStr);
+      QueryResp1 resp = proteusClient.query(queryStr);
       en[0] = System.nanoTime();
       // for (QueryRespRecord respRecord: resp.getRespRecordList()) {
       //   System.out.println(respRecord.getRecordId());

@@ -261,7 +261,8 @@ public final class CommandLine {
         values.put(nv[0], new StringByteIterator(nv[1]));
       }
 
-      Status ret = db.insert(table, tokens[1], values);
+      Map<String, Integer> valuesInt = new HashMap<String, Integer>();
+      Status ret = db.insert(table, tokens[1], values, valuesInt);
       System.out.println("Result: " + ret.getName());
     }
   }
@@ -276,8 +277,8 @@ public final class CommandLine {
         String[] nv = tokens[i].split("=");
         values.put(nv[0], new StringByteIterator(nv[1]));
       }
-
-      Status ret = db.update(table, tokens[1], values);
+      Map<String, Integer> valuesInt = new HashMap<String, Integer>();
+      Status ret = db.update(table, tokens[1], values, valuesInt);
       System.out.println("Result: " + ret.getName());
     }
   }

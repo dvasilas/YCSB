@@ -251,7 +251,7 @@ public class AsyncMongoDbClient extends DB {
    */
   @Override
   public final Status insert(final String table, final String key,
-      final Map<String, ByteIterator> values) {
+      final Map<String, ByteIterator> values, Map<String, Integer> valuesInt) {
     try {
       final MongoCollection collection = database.getCollection(table);
       final DocumentBuilder toInsert =
@@ -450,7 +450,8 @@ public class AsyncMongoDbClient extends DB {
    */
   @Override
   public final Status update(final String table, final String key,
-      final Map<String, ByteIterator> values) {
+      final Map<String, ByteIterator> values,
+      final Map<String, Integer> valuesInt) {
     try {
       final MongoCollection collection = database.getCollection(table);
       final DocumentBuilder query = BuilderFactory.start().add("_id", key);
@@ -546,5 +547,31 @@ public class AsyncMongoDbClient extends DB {
 
       return value;
     }
+  }
+
+  public Status readWithAttributes(String table, String key, Set<String> fields, Map<String, ByteIterator> result,
+      Map<String, String> attributes) {
+    return Status.NOT_IMPLEMENTED;
+  }
+
+  public Status updateWithAttributes(String table, String key,
+                                    Map<String, ByteIterator> values,
+                                    Map<String, String> attributes) {
+    return Status.NOT_IMPLEMENTED;
+  }
+
+  public Status insertWithAttributes(String table, String key,
+                                    Map<String, ByteIterator> values,
+                                    Map<String, String> attributes,
+                                    long []stTs) {
+    return Status.NOT_IMPLEMENTED;
+  }
+
+  public Status query(String queryStr, long []en) {
+    return Status.NOT_IMPLEMENTED;
+  }
+
+  @Override
+  public void endWarmup() {
   }
 }

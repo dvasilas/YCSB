@@ -697,7 +697,8 @@ public class TimeSeriesWorkload extends Workload {
     }
     final Map<String, ByteIterator> tags = new TreeMap<String, ByteIterator>();
     final String key = ((ThreadState)threadstate).nextDataPoint(tags, true);
-    if (db.insert(table, key, tags) == Status.OK) {
+    Map<String, Integer> valuesInt = new HashMap<String, Integer>();
+    if (db.insert(table, key, tags, valuesInt) == Status.OK) {
       return true;
     }
     return false;
@@ -786,7 +787,8 @@ public class TimeSeriesWorkload extends Workload {
     }
     final Map<String, ByteIterator> tags = new TreeMap<String, ByteIterator>();
     final String key = ((ThreadState)threadstate).nextDataPoint(tags, false);
-    db.update(table, key, tags);
+    Map<String, Integer> valuesInt = new HashMap<String, Integer>();
+    db.update(table, key, tags, valuesInt);
   }
   
   protected void doTransactionInsert(final DB db, Object threadstate) {

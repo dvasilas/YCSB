@@ -55,6 +55,8 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.grpc.proteusclient.*;
+
 /**
  * MongoDB binding for YCSB framework using the MongoDB Inc. <a
  * href="http://docs.mongodb.org/ecosystem/drivers/java/">driver</a>
@@ -110,6 +112,10 @@ public class MongoDbClient extends DB {
 
   /** The bulk inserts pending for the thread. */
   private final List<Document> bulkInserts = new ArrayList<Document>();
+
+  private static ProteusClient proteusClient;
+
+  private boolean dotransactions;
 
   /**
    * Cleanup any state for this DB. Called once per DB instance; there is one DB
@@ -232,6 +238,27 @@ public class MongoDbClient extends DB {
         e1.printStackTrace();
         return;
       }
+
+      dotransactions = Boolean.valueOf(props.getProperty("dotransactions", String.valueOf(true)));
+
+      if (dotransactions) {
+        try {
+          System.out.println("Inizializing the Proteus connection");
+
+          int connpoolsize = Integer.parseInt(props.getProperty("connpoolsize"));
+
+          String proteusHost = props.getProperty("proteus.host");
+          int proteusPort = Integer.parseInt(props.getProperty("proteus.port"));
+
+          proteusClient = new ProteusClient(10, connpoolsize, proteusHost, proteusPort);
+
+          System.out.println("Connection successfully initialized");
+        } catch (Exception e){
+          System.err.println("Could not connect to Proteus: "+ e.toString());
+          e.printStackTrace();
+          throw new DBException(e);
+        }
+      }
     }
   }
 
@@ -251,12 +278,13 @@ public class MongoDbClient extends DB {
    */
   @Override
   public Status insert(String table, String key,
-      Map<String, ByteIterator> values) {
+                      Map<String, ByteIterator> values,
+                      Map<String, Integer> valuesInt) {
     try {
       MongoCollection<Document> collection = database.getCollection(table);
       Document toInsert = new Document("_id", key);
-      for (Map.Entry<String, ByteIterator> entry : values.entrySet()) {
-        toInsert.put(entry.getKey(), entry.getValue().toArray());
+      for (Map.Entry<String, Integer> entry : valuesInt.entrySet()) {
+        toInsert.put(entry.getKey(), entry.getValue());
       }
 
       if (batchSize == 1) {
@@ -428,14 +456,15 @@ public class MongoDbClient extends DB {
    */
   @Override
   public Status update(String table, String key,
-      Map<String, ByteIterator> values) {
+                    Map<String, ByteIterator> values,
+                    Map<String, Integer> valuesInt) {
     try {
       MongoCollection<Document> collection = database.getCollection(table);
 
       Document query = new Document("_id", key);
       Document fieldsToSet = new Document();
-      for (Map.Entry<String, ByteIterator> entry : values.entrySet()) {
-        fieldsToSet.put(entry.getKey(), entry.getValue().toArray());
+      for (Map.Entry<String, Integer> entry : valuesInt.entrySet()) {
+        fieldsToSet.put(entry.getKey(), entry.getValue());
       }
       Document update = new Document("$set", fieldsToSet);
 
@@ -466,5 +495,48 @@ public class MongoDbClient extends DB {
             new ByteArrayByteIterator(((Binary) entry.getValue()).getData()));
       }
     }
+  }
+
+  public Status readWithAttributes(String table, String key, Set<String> fields, Map<String, ByteIterator> result,
+      Map<String, String> attributes) {
+    return Status.NOT_IMPLEMENTED;
+  }
+
+  public Status updateWithAttributes(String table, String key,
+                                    Map<String, ByteIterator> values,
+                                    Map<String, String> attributes) {
+    return Status.NOT_IMPLEMENTED;
+  }
+
+  public Status insertWithAttributes(String table, String key,
+                                    Map<String, ByteIterator> values,
+                                    Map<String, String> attributes,
+                                    long []stTs) {
+    return Status.NOT_IMPLEMENTED;
+  }
+
+  public Status query(String queryStr, long []en) {
+    try {
+      QueryResp1 resp = proteusClient.query(queryStr);
+
+      en[0] = System.nanoTime();
+
+      for (QueryRespRecord1 respRecord: resp.getRespRecordList()) {
+        for (Map.Entry<String, Payload> entry : respRecord.getResponseMap().entrySet()) {
+          System.out.println("Key = " + entry.getKey());
+          System.out.println("Value = " + entry.getValue().getValue().toStringUtf8());
+        }
+      }
+    } catch (InterruptedException e) {
+      System.err.println("Query failed "+ e.getMessage());
+      e.printStackTrace();
+      return Status.ERROR;
+    }
+
+    return Status.OK;
+  }
+
+  @Override
+  public void endWarmup() {
   }
 }

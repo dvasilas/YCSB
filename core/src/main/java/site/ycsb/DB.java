@@ -115,7 +115,8 @@ public abstract class DB {
    * @param values A HashMap of field/value pairs to update in the record
    * @return The result of the operation.
    */
-  public abstract Status update(String table, String key, Map<String, ByteIterator> values);
+  public abstract Status update(String table, String key, Map<String, ByteIterator> values,
+                              Map<String, Integer> valuesInt);
 
   public abstract Status updateWithAttributes(String table, String key, Map<String, ByteIterator> values,
                                             Map<String, String> attributes);
@@ -129,7 +130,8 @@ public abstract class DB {
    * @param values A HashMap of field/value pairs to insert in the record
    * @return The result of the operation.
    */
-  public abstract Status insert(String table, String key, Map<String, ByteIterator> values);
+  public abstract Status insert(String table, String key, Map<String, ByteIterator> values,
+                              Map<String, Integer> valuesInt);
 
   public abstract Status insertWithAttributes(String table, String key, Map<String, ByteIterator> values,
                                             Map<String, String> attributes,

@@ -3,23 +3,22 @@
 if [ "$TYPE" = "run" ]; then
   ./wait-for-it/wait-for-it.sh --host=${PROTEUSHOST} --port=${PROTEUSPORT} --timeout=0
 fi
-./wait-for-it/wait-for-it.sh --host=${S3HOST} --port=${S3PORT} --timeout=0
+./wait-for-it/wait-for-it.sh --host=${MONGOHOST} --port=${MONGOPORT} --timeout=0
 
 cd ${YCSB_DIR}
 
-./bin/ycsb ${TYPE} s3 \
-  -P ./workloads/${WORKLOAD} \
-  -p table=${TABLE} \
+./bin/ycsb ${TYPE} mongodb \
+  -P ./workloads/workloada \
+  -p table=ycsbbuck \
   -threads ${THREADS} \
+  -p warmuptime=${WARMUPTIME} \
   -p maxexecutiontime=${EXECUTIONTIME} \
   -p attributecardinality=${CARDINALITY} \
+  -p fieldcount=${FIELDCOUNT} \
   -p connpoolsize=${POOLSIZE} \
-  -p warmuptime=${WARMUPTIME} \
+  -p mongodb.url=${MONGOURL} \
   -p proteus.host=${PROTEUSHOST} \
   -p proteus.port=${PROTEUSPORT} \
-  -p s3.endPoint=http://${S3HOST}:${S3PORT}  \
-  -p s3.accessKeyId=${S3ACCESSKEYID} \
-  -p s3.secretKey=${S3SECRETKEY} \
   -p recordcount=${RECORDCOUNT} \
   -p insertstart=${INSERTSTART} \
   -p insertcount=${INSERTCOUNT} \
@@ -27,9 +26,9 @@ cd ${YCSB_DIR}
   -p updateproportion=${UPDATEPROPORTION} \
   -p insertproportion=${INSERTPROPORTION} \
   -p client=${CLIENTID} \
-  -s > ${MEASUREMENT_RESULTS_DIR}/${OUTPUT_FILE_NAME}.txt
+  -s > /ycsb/${OUTPUT_FILE_NAME}.txt
 
 if [ "$TYPE" = "run" ]; then
-  cp QUERY.hdr ${MEASUREMENT_RESULTS_DIR}/QUERY_${OUTPUT_FILE_NAME}.hdr
+  cp QUERY.hdr /ycsb/QUERY_${OUTPUT_FILE_NAME}.hdr
   # cp FRESHNESS_LATENCY.hdr ${MEASUREMENT_RESULTS_DIR}/FRESHNESS_LATENCY_${OUTPUT_FILE_NAME}.hdr
 fi
