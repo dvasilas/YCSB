@@ -517,16 +517,25 @@ public class MongoDbClient extends DB {
 
   public Status query(String queryStr, long []en) {
     try {
-      QueryResp1 resp = proteusClient.query(queryStr);
+      QueryResp resp = proteusClient.query(queryStr);
 
       en[0] = System.nanoTime();
 
-      for (QueryRespRecord1 respRecord: resp.getRespRecordList()) {
-        for (Map.Entry<String, Payload> entry : respRecord.getResponseMap().entrySet()) {
-          System.out.println("Key = " + entry.getKey());
-          System.out.println("Value = " + entry.getValue().getValue().toStringUtf8());
-        }
-      }
+      // for (QueryRespRecord respRecord: resp.getRespRecordList()) {
+      //   System.out.println(respRecord.getRecordId());
+
+      //   Map<String, String> attributes =  respRecord.getAttributesMap();
+      //   for (Map.Entry<String, String> entry : attributes.entrySet()) {
+      //     System.out.println(entry.getKey() + ": " + entry.getValue());
+      //   }
+      // }
+
+      // for (QueryRespRecord1 respRecord: resp.getRespRecordList()) {
+      //   for (Map.Entry<String, Payload> entry : respRecord.getResponseMap().entrySet()) {
+      //     System.out.println("Key = " + entry.getKey());
+      //     System.out.println("Value = " + entry.getValue().getValue().toStringUtf8());
+      //   }
+      // }
     } catch (InterruptedException e) {
       System.err.println("Query failed "+ e.getMessage());
       e.printStackTrace();
