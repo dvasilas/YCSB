@@ -83,6 +83,7 @@ public class AttributeGenerator extends Generator<Map<String, String>> {
   protected NumberGenerator insertValChooser;
   protected NumberGenerator rangeChooser;
   protected NumberGenerator attributeValGenerator;
+  protected NumberGenerator queryValGenerator;
   protected NumberGenerator attributeNumGenerator;
   protected DiscreteGenerator latestQueryChooser;
   private PreviousQueries prevQueries;
@@ -101,8 +102,10 @@ public class AttributeGenerator extends Generator<Map<String, String>> {
    */
   public AttributeGenerator(String filename, long insertstart, long insertcount, Properties p) {
     // this.filename = filename;
-    int attributeCardinality = Integer.parseInt(p.getProperty("attributecardinality"));
+    int attributeCardinality = Integer.parseInt(p.getProperty("attributecardinality", "0"));
+    int queryCardinality = Integer.parseInt(p.getProperty("querycardinality", "0"));
     attributeValGenerator = new UniformLongGenerator(0, attributeCardinality);
+    queryValGenerator = new UniformLongGenerator(0, queryCardinality);
 
     attributeNumGenerator = new UniformLongGenerator(0, 5);
     // this.insertstart = insertstart;
@@ -248,7 +251,7 @@ public class AttributeGenerator extends Generator<Map<String, String>> {
     // default:
     //   throw new AssertionError("nextQuery neither 'new' nor 'cached'");
     // }
-    int val =  attributeValGenerator.nextValue().intValue();
+    int val = queryValGenerator.nextValue().intValue();
     String query = String.format("select * from %s where attribute0 = %d", table, val);
     return query;
   }

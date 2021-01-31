@@ -14,6 +14,7 @@ cd ${YCSB_DIR}
   -p warmuptime=${WARMUPTIME} \
   -p maxexecutiontime=${EXECUTIONTIME} \
   -p attributecardinality=${CARDINALITY} \
+  -p querycardinality=${QCARDINALITY} \
   -p fieldcount=${FIELDCOUNT} \
   -p connpoolsize=${POOLSIZE} \
   -p mongodb.url=${MONGOURL} \
@@ -30,5 +31,5 @@ cd ${YCSB_DIR}
 
 if [ "$TYPE" = "run" ]; then
   cp QUERY.hdr /ycsb/QUERY_${OUTPUT_FILE_NAME}.hdr
-  # cp FRESHNESS_LATENCY.hdr ${MEASUREMENT_RESULTS_DIR}/FRESHNESS_LATENCY_${OUTPUT_FILE_NAME}.hdr
+  cp UPDATE.hdr /ycsb/UPDATE_${OUTPUT_FILE_NAME}.hdr
 fi

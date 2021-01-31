@@ -15,7 +15,6 @@ image-build:
 
 image-push:
 	docker push ${IMG}
-	docker push ${IMGPARSE}
 
 .PHONY: docker_build docker_push
 
