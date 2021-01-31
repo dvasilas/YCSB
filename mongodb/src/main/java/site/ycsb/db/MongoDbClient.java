@@ -286,6 +286,7 @@ public class MongoDbClient extends DB {
       for (Map.Entry<String, Integer> entry : valuesInt.entrySet()) {
         toInsert.put(entry.getKey(), entry.getValue());
       }
+      toInsert.put("timestamp", System.currentTimeMillis());
 
       if (batchSize == 1) {
         if (useUpsert) {
@@ -466,6 +467,8 @@ public class MongoDbClient extends DB {
       for (Map.Entry<String, Integer> entry : valuesInt.entrySet()) {
         fieldsToSet.put(entry.getKey(), entry.getValue());
       }
+      fieldsToSet.put("timestamp", System.currentTimeMillis());
+      
       Document update = new Document("$set", fieldsToSet);
 
       UpdateResult result = collection.updateOne(query, update);
