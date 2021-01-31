@@ -44,6 +44,8 @@ public class ClientThread implements Runnable {
   private Properties props;
   private long targetOpsTickNs;
   private final Measurements measurements;
+  
+  private final boolean justParse;
 
   /**
    * Constructor.
@@ -70,6 +72,7 @@ public class ClientThread implements Runnable {
     this.props = props;
     measurements = Measurements.getMeasurements();
     spinSleep = Boolean.valueOf(this.props.getProperty("spin.sleep", "false"));
+    justParse = Boolean.valueOf(this.props.getProperty("parse", String.valueOf(false)));
     this.completeLatch = completeLatch;
   }
 
@@ -128,33 +131,35 @@ public class ClientThread implements Runnable {
       sleepUntil(System.nanoTime() + randomMinorDelay);
     }
     try {
-      if (dotransactions) {
-        long startTimeNanos = System.nanoTime();
+      if (!justParse) {
+        if (dotransactions) {
+          long startTimeNanos = System.nanoTime();
 
-        while (((opcount == 0) || (opsdone < opcount)) && !workload.isStopRequested()) {
+          while (((opcount == 0) || (opsdone < opcount)) && !workload.isStopRequested()) {
 
-          if (!workload.doTransaction(db, workloadstate)) {
-            break;
+            if (!workload.doTransaction(db, workloadstate)) {
+              break;
+            }
+
+            opsdone++;
+
+            throttleNanos(startTimeNanos);
           }
+        } else {
+          long startTimeNanos = System.nanoTime();
 
-          opsdone++;
+          while (((opcount == 0) || (opsdone < opcount)) && !workload.isStopRequested()) {
 
-          throttleNanos(startTimeNanos);
-        }
-      } else {
-        long startTimeNanos = System.nanoTime();
+            if (!workload.doInsert(db, workloadstate)) {
+              break;
+            }
 
-        while (((opcount == 0) || (opsdone < opcount)) && !workload.isStopRequested()) {
+            opsdone++;
 
-          if (!workload.doInsert(db, workloadstate)) {
-            break;
+            throttleNanos(startTimeNanos);
           }
-
-          opsdone++;
-
-          throttleNanos(startTimeNanos);
+          // workload.buildCRCs(db);
         }
-        // workload.buildCRCs(db);
       }
     } catch (Exception e) {
       e.printStackTrace();

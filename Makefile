@@ -9,13 +9,13 @@ image-build:
 	echo ${TAG}
 	echo ${IMG}
 	docker build -t ycsb:local .
-#	docker build -f Dockerfile_parse -t ycsb:parse .
+	docker build -f Dockerfile_parse -t ycsb:parse .
 	docker tag ycsb:local ${IMG}
-#	docker tag ycsb:parse ${IMGPARSE}
+	docker tag ycsb:parse ${IMGPARSE}
 
 image-push:
 	docker push ${IMG}
-#	docker push ${IMGPARSE}
+	docker push ${IMGPARSE}
 
 .PHONY: docker_build docker_push
 
