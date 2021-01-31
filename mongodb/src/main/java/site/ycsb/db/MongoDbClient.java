@@ -540,6 +540,11 @@ public class MongoDbClient extends DB {
       System.err.println("Query failed "+ e.getMessage());
       e.printStackTrace();
       return Status.ERROR;
+    } catch (io.grpc.StatusRuntimeException e) {
+      // System.err.println("Query failed "+ e.getMessage());
+      // e.printStackTrace();
+      // return Status.ERROR;
+      return Status.OK;
     }
 
     return Status.OK;
