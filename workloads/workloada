@@ -22,13 +22,7 @@
 #   Default data size: 1 KB records (10 fields, 100 bytes each, plus key)
 #   Request distribution: zipfian
 
-insertstart=0
-insertcount=1000
-recordcount=1000
 operationcount=0
-
-attributecount=5
-attributedataset=dataset/yellow_tripdata_2019-06.csv
 
 workload=site.ycsb.workloads.CoreWorkload
 
@@ -40,7 +34,7 @@ scanproportion=0
 insertproportion=0
 queryproportion=1.0
 
-requestdistribution=zipfian
+requestdistribution=uniform
 
 queryresultcount=1
 

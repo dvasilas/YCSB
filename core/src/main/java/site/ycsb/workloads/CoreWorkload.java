@@ -798,7 +798,7 @@ public class CoreWorkload extends Workload {
     } else {
       do {
         keynum = keychooser.nextValue().intValue();
-      } while (keynum > insertcount);
+      } while (keynum < insertstart || keynum > insertstart + insertcount);
     }
     return keynum;
   }
